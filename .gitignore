@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+Thumbs.db
+.env
+.env.*
+/itr-runs/
+/my-itr-runs/
+/my-first-report/
+/itr-progress/
+/local-runs/
+/local-views/

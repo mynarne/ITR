@@ -1,0 +1,15 @@
+{
+  "run_id": "itr-1f351c99641f414d8cd4dc46abb4e995",
+  "round": 2,
+  "attempt": 1,
+  "created_at": "2026-11-20T09:46:18.714804+09:00",
+  "previous": {
+    "run_id": "itr-fcdf5ee9fe144231840f51e8c2aae51d",
+    "round": 1,
+    "attempt": 2,
+    "type": "regression",
+    "reason": "배송 규칙의 등호를 복원한 새 리비전의 회귀 검사",
+    "record_path": "round-0001/attempt-0002/record.json",
+    "sha256": "4fee5bf3b4c9e555775773244fdb8f52b18aeeb9d7dc9aabc5db18db6d58b85a"
+  }
+}

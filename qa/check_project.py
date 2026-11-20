@@ -35,6 +35,58 @@ def checksum(data):
     return hashlib.sha256(data).hexdigest()
 
 
+def stable(value):
+    return checksum(json.dumps(value, sort_keys=True, ensure_ascii=False, allow_nan=False,
+                               separators=(",", ":")).encode("utf-8"))
+
+
+def strings(value):
+    if isinstance(value, dict):
+        return [s for item in value.values() for s in strings(item)]
+    if isinstance(value, list):
+        return [s for item in value for s in strings(item)]
+    return [value] if isinstance(value, str) else []
+
+
+def rewrite_copy(record_path, target, mutate, version=None):
+    """Copy a sealed store, edit every evidence file and recompute all hashes so only the contract can reject it."""
+    shutil.copytree(record_path.parent.parent.parent, target)
+    path = target / FIRST
+    folder, record = path.parent, json_file(path)
+    for entry in record["evidence"]:
+        evidence = folder / entry["path"]
+        observation = json_file(evidence)
+        if version:
+            observation["evidence_schema_version"] = version
+        mutate(observation)
+        save(evidence, observation)
+        entry["sha256"] = checksum(evidence.read_bytes())
+    if version:
+        approval = json_file(folder / "approval.json")
+        approval.pop("approval_sha256")
+        approval["evidence_schema_version"] = version
+        approval = {"approval_sha256": stable(approval), **approval}
+        save(folder / "approval.json", approval)
+        reservation = json_file(folder / "reservation.json")
+        reservation["approval_sha256"] = approval["approval_sha256"]
+        save(folder / "reservation.json", reservation)
+        record["extensions"].update(approval_sha256=approval["approval_sha256"], evidence_schema_version=version)
+    save(path, record)
+    save(folder / "COMPLETE.json", {"sha256": checksum(path.read_bytes())})
+    return path
+
+
+def absolute_launch_path(observation):
+    observation["launch_argv"][0] = str(Path(sys.executable).resolve())
+
+
+def as_evidence_20(observation):
+    # Published evidence 2.0 stored the resolved executable path and had no separate path hash.
+    observation.pop("launch_executable_sha256")
+    if observation["launch_argv"] is not None:
+        absolute_launch_path(observation)
+
+
 def tree_bytes(folder):
     return {p.relative_to(folder).as_posix(): checksum(p.read_bytes())
             for p in folder.rglob("*") if p.is_file()}
@@ -345,9 +397,13 @@ def output_and_environment(root, workspace):
     require(korean in observed["utf8-isolated"]["stdout"], "isolated interpreter must emit UTF-8")
     argv = {key: plan["commands"][key]["argv"] for key in ("utf8-isolated", "late-cp949")}
     executable = str(Path(sys.executable).resolve())
-    require(observed["utf8-isolated"]["launch_argv"] == [executable, "-X", "utf8", *argv["utf8-isolated"][1:]]
-            and observed["late-cp949"]["launch_argv"] == [executable, *argv["late-cp949"][1:]],
-            "launch argv must show the actual executable and flags")
+    path_hash = checksum(executable.encode("utf-8", "surrogatepass"))
+    require(observed["utf8-isolated"]["launch_argv"] == ["{python}", "-X", "utf8", *argv["utf8-isolated"][1:]]
+            and observed["late-cp949"]["launch_argv"] == argv["late-cp949"]
+            and all(o["launch_executable_sha256"] == path_hash for o in observed.values()),
+            "launch argv must show flags and bind the resolved executable by hash only")
+    require(not any(executable in s for o in observed.values() for s in strings(o)),
+            "shared evidence must not contain the resolved executable path")
     for key, offset, encoding in (("boundary", 65535, "utf-8"), ("late-cp949", 90000, "cp949")):
         output = observed[key]
         require(output["output_encoding"] == encoding and output["stdout_truncated"] is True
@@ -392,8 +448,14 @@ def evidence_versions(root, workspace):
     require(tree_bytes(legacy.parent) == before, "legacy files unchanged")
 
     good = root / "basic-store" / FIRST
-    require("증거 2.0" in cli(["verify", good]).stdout, "new record uses evidence 2.0")
-    render_check(good, root / "new-report", "증거 2.0 · 프로세스 호출 인수 기록")
+    require("증거 2.1" in cli(["verify", good]).stdout, "new record uses evidence 2.1")
+    render_check(good, root / "new-report", "증거 2.1 · 프로세스 호출 인수 기록")
+    leaked = rewrite_copy(good, root / "absolute-path-in-2.1", absolute_launch_path)
+    require("실제 실행 인수 기록 불일치" in cli(["verify", leaked], expected=2).stderr,
+            "evidence 2.1 must reject an absolute executable path")
+    published = rewrite_copy(good, root / "evidence-2.0", as_evidence_20, version="2.0")
+    require("증거 2.0" in cli(["verify", published]).stdout, "evidence 2.0 records keep their original rules")
+    render_check(published, root / "evidence-2.0-report", "증거 2.0 · 프로세스 호출 인수 기록")
     partial = root / "missing-launch-field"
     shutil.copytree(good.parent.parent.parent, partial)
     record_path = partial / FIRST
@@ -422,10 +484,11 @@ def evidence_versions(root, workspace):
     blocked = store / FIRST
     result = verified(blocked)
     proof = json_file(blocked.parent / result["evidence"][0]["path"])
-    require(proof["evidence_schema_version"] == "2.0" and proof["launch_argv"] is None
+    require(proof["evidence_schema_version"] == "2.1" and proof["launch_argv"] is None
+            and proof["launch_executable_sha256"] is None
             and proof["status"] == "blocked" and proof["exit_code"] is None, "blocked before process launch")
-    render_check(blocked, root / "pre-launch-report", "증거 2.0 · 프로세스 호출 전 차단")
-    print("PASS 11 · 레거시와 증거 2.0을 재검증·재보고, 필수 키 누락 거부, 호출 전 차단 보존")
+    render_check(blocked, root / "pre-launch-report", "증거 2.1 · 프로세스 호출 전 차단")
+    print("PASS 11 · 레거시·증거 2.0·2.1 재검증·재보고, 2.1 절대 경로와 필수 키 누락 거부, 호출 전 차단 보존")
 
 
 def main():

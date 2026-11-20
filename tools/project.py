@@ -13,7 +13,7 @@ from pathlib import Path
 
 from itr import Journal
 from itr_store import digest, encoded, fresh, gate, load, names, need, now, predecessor, safe_file
-from project_plan import EVIDENCE_SCHEMA_VERSION, inspect, stable, validate
+from project_plan import EVIDENCE_SCHEMA_VERSIONS, inspect, stable, validate
 from project_process import run_command
 from project_verify import verify_project
 
@@ -37,7 +37,7 @@ def one(check, number, command, bundle, journal, missing, parent_status, stop):
     else:
         journal.emit(key, "running", "승인된 로컬 명령의 작업 사본을 준비합니다.")
         report = {"evidence_schema_version": binding["evidence_schema_version"], "argv": command["argv"],
-                  "launch_argv": None, "exit_code": None}
+                  "launch_argv": None, "launch_executable_sha256": None, "exit_code": None}
         try:
             status, why = run_command(command, binding, payloads, actual_paths, stop, report)
         except OSError as error:
@@ -222,7 +222,7 @@ def main():
     if args.command == "verify":
         data = verify_project(args.record.absolute())
         version = data["extensions"].get("evidence_schema_version")
-        note = (f"증거 {EVIDENCE_SCHEMA_VERSION} · 실행 인수 필드 확인" if version == EVIDENCE_SCHEMA_VERSION
+        note = (f"증거 {version} · 실행 인수 필드 확인" if version in EVIDENCE_SCHEMA_VERSIONS
                 else "기존 증거 · 실제 실행 인수 미기록")
         print(f"검증 통과 · {data['run_id']} · {data['created_at']} KST · {note}")
         return 0

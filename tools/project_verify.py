@@ -3,7 +3,7 @@ import re
 from pathlib import Path, PurePosixPath, PureWindowsPath
 
 from itr_store import digest, gate, keyed, names, need, predecessor, safe_file
-from project_plan import (EVIDENCE_SCHEMA_VERSION, EXECUTION_POLICY, executable_path_hash,
+from project_plan import (EVIDENCE_SCHEMA_VERSIONS, EXECUTION_POLICY, executable_path_hash,
                           plan_checks, read_json, stable, validate)
 from project_process import LIMIT, launch_flags
 
@@ -17,8 +17,9 @@ def versioned_evidence(binding, extensions):
     field = "evidence_schema_version"
     if field not in binding and field not in extensions:
         need("launch_os" not in binding and "executable_paths_sha256" not in binding, "실행 증거 버전 누락")
-        return False
-    need(binding.get(field) == extensions.get(field) == EVIDENCE_SCHEMA_VERSION
+        return None
+    version = binding.get(field)
+    need(version == extensions.get(field) and version in EVIDENCE_SCHEMA_VERSIONS
          and binding.get("execution_policy") == EXECUTION_POLICY, "지원하지 않거나 일치하지 않는 실행 증거 버전")
     need(binding.get("launch_os") in LAUNCH_PATHS, "실행 플랫폼 정보 불일치")
     paths = binding.get("executable_paths_sha256")
@@ -29,11 +30,27 @@ def versioned_evidence(binding, extensions):
             need(value is None, "실행 경로 지문이 예상 범위를 벗어났습니다.")
         else:
             need(isinstance(value, str) and re.fullmatch(r"[0-9a-f]{64}", value), "승인 실행 경로 지문 오류")
-    return True
+    return version
 
 
-def verify_launch(observation, command, binding):
+def verify_hashed_launch(observation, command, binding):
+    # 2.1: the executable slot holds the plan name; the resolved path appears only as its approved hash.
+    actual, name = observation["launch_argv"], command["argv"][0]
+    local = name.startswith("./")
+    expected = None if actual is None or local else binding["executable_paths_sha256"][name]
+    need("launch_executable_sha256" in observation and observation["launch_executable_sha256"] == expected,
+         "승인 실행 경로 지문 불일치")
+    if actual is not None:
+        need(actual == [name, *launch_flags(command), *command["argv"][1:]], "실제 실행 인수 기록 불일치")
+        need(binding["executables"][name] is not None and (local or expected is not None),
+             "승인되지 않은 실행 파일 호출 기록")
+
+
+def verify_launch(observation, command, binding, version):
     validate(observation, schema_path=EVIDENCE_SCHEMA)
+    need(observation["evidence_schema_version"] == version, "증거별 실행 증거 버전 불일치")
+    if version != "2.0":
+        return verify_hashed_launch(observation, command, binding)
     actual = observation["launch_argv"]
     if actual is None:
         return  # The versioned schema only allows this before a blocked launch.
@@ -67,7 +84,7 @@ def verify_project(path):
          == reservation["approval_sha256"] == record["extensions"]["approval_sha256"], "실행 승인 지문 불일치")
     policy = binding.get("execution_policy")
     need(policy in (None, EXECUTION_POLICY), "알 수 없는 실행 정책")
-    has_launch = versioned_evidence(binding, record["extensions"])
+    launch_version = versioned_evidence(binding, record["extensions"])
     need(binding["plan_sha256"] == digest(safe_file(folder, "plan.json").read_bytes()), "고정 계획 바이트 불일치")
     need(set(plan["files"]) == {s["path"] for s in binding["files"]}, "입력 파일 목록 불일치")
     need(record["extensions"]["standards"] == plan["standards"], "표준 선택 근거 불일치")
@@ -133,8 +150,8 @@ def verify_project(path):
                  and obs["pass_condition"] == check["pass_condition"] and obs["detail"] == outcome["detail"],
                  "실행 증거·판정 불일치")
             command = plan["commands"][key]
-            if has_launch:
-                verify_launch(obs, command, binding)
+            if launch_version:
+                verify_launch(obs, command, binding, launch_version)
             else:
                 need("evidence_schema_version" not in obs and "launch_argv" not in obs,
                      "실행 인수를 포함한 증거에 버전이 필요합니다.")

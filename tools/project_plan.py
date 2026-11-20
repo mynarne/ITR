@@ -14,7 +14,9 @@ from validate import read_json, validate
 MAX_SOURCE_BYTES = 64 * 1024 * 1024
 OUTPUT_ENCODINGS = {"utf-8", "cp949"}
 EXECUTION_POLICY = "itr.local.process.v2"
-EVIDENCE_SCHEMA_VERSION = "2.0"
+EVIDENCE_SCHEMA_VERSION = "2.1"
+# 2.0 stored the resolved executable path; 2.1 stores the plan name and binds the path by hash only.
+EVIDENCE_SCHEMA_VERSIONS = ("2.0", EVIDENCE_SCHEMA_VERSION)
 
 
 def system_path():

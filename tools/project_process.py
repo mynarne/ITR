@@ -9,7 +9,7 @@ import time
 from pathlib import Path
 
 from itr_store import fresh, now
-from project_plan import SYSTEM_PATH, file_hash
+from project_plan import SYSTEM_PATH, executable_path_hash, file_hash
 
 LIMIT = 64 * 1024
 
@@ -107,8 +107,10 @@ def run_command(command, binding, payloads, actual_paths, stop, report):
         try:
             if stop.is_set():
                 return "blocked", "실행 전 중단 요청."
-            report["launch_argv"] = [exe, *flags, *argv[1:]]
-            process = subprocess.Popen(report["launch_argv"], shell=False, cwd=cwd, env=env,
+            # Shared evidence keeps the plan's program name; the resolved path is bound only by its hash.
+            report["launch_argv"] = [name, *flags, *argv[1:]]
+            report["launch_executable_sha256"] = None if name.startswith("./") else executable_path_hash(exe)
+            process = subprocess.Popen([exe, *flags, *argv[1:]], shell=False, cwd=cwd, env=env,
                                        stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                        start_new_session=os.name == "posix")
             markers = (command.get("pass_marker"), None)

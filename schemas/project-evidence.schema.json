@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "ITR 로컬 프로젝트 실행 증거 2.0",
-  "description": "계획 인수와 실제 Popen 호출 인수를 별도로 저장한다. 경로 지문과 계획 일치 여부는 project.py verify가 추가로 확인한다.",
+  "title": "ITR 로컬 프로젝트 실행 증거 2.0 · 2.1",
+  "description": "계획 인수와 실제 Popen 호출 인수를 별도로 저장한다. 2.1은 실행 파일 자리에 계획의 이름을 두고, 확인한 절대 경로는 launch_executable_sha256으로만 남긴다. 경로 지문과 계획 일치 여부는 project.py verify가 추가로 확인한다.",
   "type": "object",
   "required": [
     "evidence_schema_version",
@@ -12,7 +12,10 @@
   ],
   "properties": {
     "evidence_schema_version": {
-      "const": "2.0"
+      "enum": [
+        "2.0",
+        "2.1"
+      ]
     },
     "argv": {
       "$ref": "#/$defs/args"
@@ -26,7 +29,19 @@
           "$ref": "#/$defs/args"
         }
       ],
-      "description": "Popen에 전달한 인수 배열. 호출 전에 차단한 경우 null."
+      "description": "Popen에 전달한 인수 배열. 첫 항목은 2.0에서 실행 파일 절대 경로, 2.1에서 계획의 실행 이름이다. 호출 전에 차단한 경우 null."
+    },
+    "launch_executable_sha256": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      ],
+      "description": "2.1: 확인한 실행 파일 절대 경로의 SHA-256. 로컬 ./ 실행기와 호출 전 차단은 null."
     },
     "exit_code": {
       "anyOf": [

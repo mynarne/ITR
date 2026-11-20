@@ -255,6 +255,8 @@ class Audit:
             return checksum
         if name in FONT_HASHES:
             require(content.startswith(b"\x00\x01\x00\x00"), "invalid pinned TrueType font · " + where)
+        elif name.endswith(".pdf") and name in REVIEWED:
+            pass  # These exact bytes passed the Poppler scan when their SHA-256 was pinned in REVIEWED.
         elif name.endswith(".pdf"):
             meta = run(["pdfinfo", "-"], content).decode("utf-8")
             self.text(meta, "PDF properties")

@@ -17,7 +17,7 @@
 
 ## 로컬 점검
 
-후보 루트에서 실행한다. ZIP은 배포 폴더의 바깥에 만든다. PDF 점검에는 Poppler의 pdfinfo, pdftotext, pdfdetach가 필요하다. Git 이력까지 점검할 때는 Git이 필요하다.
+후보 루트에서 실행한다. ZIP은 배포 폴더의 바깥에 만든다. 새로 넣거나 바꾼 PDF의 점검에는 Poppler의 pdfinfo, pdftotext, pdfdetach가 필요하다. `REVIEWED` 고정 해시와 같은 동봉 PDF는 고정할 때 이미 점검했으므로 다시 스캔하지 않는다. Git 이력까지 점검할 때는 Git이 필요하다.
 
 ```sh
 python3 -B qa/check_release.py --root .

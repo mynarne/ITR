@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ITR 일반 로컬 프로젝트 계획 1.0",
+  "description": "인접 record.schema.json의 공통 입력·상대 경로 계약을 참조한다. 프로젝트 파일 바이트, 명령-검사 ID, 실행기, 승인 지문, 고정 파일 크기와 UTF-8 길이는 inspect 및 run에서 검증한다.",
+  "type": "object",
+  "properties": {
+    "adapter_version": {
+      "const": "1.0"
+    },
+    "input": {
+      "$ref": "record.schema.json#/$defs/input"
+    },
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "record.schema.json#/$defs/relative_path"
+      }
+    },
+    "commands": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/command"
+      }
+    },
+    "standards": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/mapping"
+      }
+    }
+  },
+  "required": [
+    "adapter_version",
+    "input",
+    "files",
+    "commands",
+    "standards"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "nonblank": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "arg": {
+      "type": "string",
+      "pattern": "^[^\\u0000]*$"
+    },
+    "passMarker": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "allOf": [
+        {
+          "pattern": "\\S"
+        },
+        {
+          "not": {
+            "pattern": "[\\u0000\\r\\n\\uFFFD]"
+          }
+        }
+      ],
+      "description": "UTF-8로 인코딩한 길이 1~256바이트. 저장한 stdout에서 이 문자열을 실제 관찰해야 종료 코드 0을 통과시킨다. 바이트 길이는 어댑터가 추가로 확인한다."
+    },
+    "command": {
+      "type": "object",
+      "properties": {
+        "argv": {
+          "type": "array",
+          "minItems": 1,
+          "prefixItems": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/arg"
+                },
+                {
+                  "minLength": 1
+                }
+              ]
+            }
+          ],
+          "items": {
+            "$ref": "#/$defs/arg"
+          }
+        },
+        "timeout_s": {
+          "type": "number",
+          "minimum": 0.05,
+          "maximum": 3600
+        },
+        "fingerprint": {
+          "$ref": "#/$defs/nonblank"
+        },
+        "pass_marker": {
+          "$ref": "#/$defs/passMarker"
+        }
+      },
+      "required": [
+        "argv"
+      ],
+      "additionalProperties": false
+    },
+    "mapping": {
+      "type": "object",
+      "properties": {
+        "edition": {
+          "$ref": "#/$defs/nonblank"
+        },
+        "applied": {
+          "type": "boolean"
+        },
+        "reason": {
+          "$ref": "#/$defs/nonblank"
+        }
+      },
+      "required": [
+        "edition",
+        "applied",
+        "reason"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

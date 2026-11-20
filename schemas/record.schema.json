@@ -1,0 +1,744 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ITR 실행 기록 1.0",
+  "description": "새 시도마다 한 번 발행하는 실행 기록. 배열 간 참조·원본 해시·시도 계보는 별도 의미 검증 대상이다.",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "run_id": {
+      "$ref": "#/$defs/id"
+    },
+    "round": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "created_at": {
+      "$ref": "#/$defs/time"
+    },
+    "previous": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/previous"
+        }
+      ]
+    },
+    "input": {
+      "$ref": "#/$defs/input"
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/event"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/evidence"
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/result"
+      },
+      "minItems": 1
+    },
+    "defects": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/defect"
+      }
+    },
+    "reviews": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/review"
+      }
+    },
+    "approval": {
+      "$ref": "#/$defs/approval"
+    },
+    "decision": {
+      "$ref": "#/$defs/decision"
+    },
+    "extensions": {
+      "type": "object",
+      "description": "소비자가 생략할 수 있는 추가 메타데이터. 표준 판정과 증거를 변경할 수 없다."
+    }
+  },
+  "required": [
+    "schema_version",
+    "run_id",
+    "round",
+    "attempt",
+    "created_at",
+    "previous",
+    "input",
+    "events",
+    "evidence",
+    "results",
+    "defects",
+    "reviews",
+    "approval",
+    "decision"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "문서 내 식별자. 참조에는 원래 문자열을 그대로 쓴다."
+    },
+    "time": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$",
+      "description": "오프셋이 명시된 시각. 사용자 화면에서는 Asia/Seoul로 표시한다."
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "파일 원본 바이트의 소문자 SHA-256.",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "relative_path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)(?:\\.{1,2})(?:/|$))(?!.*//)(?!.*[\\\\:\\u0000-\\u001F\\u007F])[^/]+(?:/[^/]+)*$",
+      "description": "빈 세그먼트, 제어 문자, 콜론, 역슬래시 및 점 세그먼트를 허용하지 않는 슬래시 구분 상대 경로. 읽기 전 심볼릭 링크 및 루트 이탈 여부도 검사한다."
+    },
+    "terminal_status": {
+      "enum": [
+        "passed",
+        "failed",
+        "blocked",
+        "not_run"
+      ]
+    },
+    "review_role": {
+      "enum": [
+        "bb_goal",
+        "bb_context",
+        "bb_boundary",
+        "wb_logic",
+        "wb_contract",
+        "wb_config"
+      ]
+    },
+    "baseline": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "enum": [
+            "goal",
+            "rule",
+            "requirement"
+          ]
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "지정한 제품 목표, 선택한 스킬 규칙 또는 프로젝트 요구사항의 고정 버전."
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "description": "해당 버전에서 합의한 원문 또는 검증 가능한 자체 기술."
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "선택 사항. 고정 버전의 출처를 식별한다."
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "version",
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "capability": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "available": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "available"
+      ],
+      "additionalProperties": false
+    },
+    "check": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stage": {
+          "enum": [
+            "unit",
+            "integration",
+            "system",
+            "acceptance",
+            "intersystem"
+          ]
+        },
+        "method": {
+          "enum": [
+            "inspection",
+            "execution"
+          ]
+        },
+        "criteria": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "pass_condition": {
+          "type": "string",
+          "minLength": 1,
+          "description": "나열한 기준 전체에 적용되는 관찰 가능한 통과 조건. 조건이 다르면 검사를 분리한다."
+        },
+        "requires": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "role": {
+          "enum": [
+            "bb_goal",
+            "bb_context",
+            "bb_boundary",
+            "wb_logic",
+            "wb_contract",
+            "wb_config",
+            "runner"
+          ]
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "selected": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "stage",
+        "method",
+        "criteria",
+        "pass_condition",
+        "requires",
+        "role"
+      ],
+      "additionalProperties": false
+    },
+    "input": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": [
+            "precision",
+            "delta"
+          ]
+        },
+        "product": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1,
+          "description": "대상 제품의 고정 리비전."
+        },
+        "baselines": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/baseline"
+          },
+          "minItems": 1
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/capability"
+          }
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/check"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "mode",
+        "product",
+        "revision",
+        "baselines",
+        "capabilities",
+        "checks"
+      ],
+      "additionalProperties": false
+    },
+    "event": {
+      "type": "object",
+      "properties": {
+        "seq": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "at": {
+          "$ref": "#/$defs/time"
+        },
+        "check_id": {
+          "$ref": "#/$defs/id"
+        },
+        "state": {
+          "enum": [
+            "queued",
+            "running",
+            "passed",
+            "failed",
+            "blocked",
+            "not_run"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "seq",
+        "at",
+        "check_id",
+        "state",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "description": "시도 디렉터리 기준의 증거 원본 참조. 필요한 경우 로그·이미지·측정 결과를 함께 보존한다.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "check_id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "enum": [
+            "log",
+            "capture",
+            "review",
+            "measurement"
+          ]
+        },
+        "path": {
+          "$ref": "#/$defs/relative_path"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "id",
+        "check_id",
+        "kind",
+        "path",
+        "sha256"
+      ],
+      "additionalProperties": false
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "check_id": {
+          "$ref": "#/$defs/id"
+        },
+        "status": {
+          "$ref": "#/$defs/terminal_status"
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1,
+          "description": "관찰값 또는 차단·미실행 사유."
+        }
+      },
+      "required": [
+        "check_id",
+        "status",
+        "evidence_ids",
+        "detail"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "passed",
+                  "failed"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "evidence_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "defect": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "fingerprint": {
+          "type": "string",
+          "minLength": 1,
+          "description": "회귀 추적과 중복 제거에 쓰는 안정적인 키."
+        },
+        "check_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "baseline_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "observed": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cause_confirmed": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1
+            }
+          ]
+        },
+        "hypothesis": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1
+            }
+          ]
+        },
+        "minimal_fix": {
+          "type": "string",
+          "minLength": 1
+        },
+        "next_regression": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "id",
+        "fingerprint",
+        "check_ids",
+        "baseline_ids",
+        "evidence_ids",
+        "observed",
+        "cause_confirmed",
+        "hypothesis",
+        "minimal_fix",
+        "next_regression"
+      ],
+      "additionalProperties": false
+    },
+    "review": {
+      "type": "object",
+      "description": "타 역할 결과를 보기 전 봉인한 1차 판정. seal 시각만으로 격리 자체를 증명할 수 없으므로 실제 실행 시 격리된 어댑터의 근거를 연결한다.",
+      "properties": {
+        "role": {
+          "$ref": "#/$defs/review_role"
+        },
+        "check_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "verdict": {
+          "$ref": "#/$defs/terminal_status"
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "sealed_at": {
+          "$ref": "#/$defs/time"
+        }
+      },
+      "required": [
+        "role",
+        "check_ids",
+        "verdict",
+        "evidence_ids",
+        "sealed_at"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "verdict": {
+                "enum": [
+                  "passed",
+                  "failed"
+                ]
+              }
+            },
+            "required": [
+              "verdict"
+            ]
+          },
+          "then": {
+            "properties": {
+              "evidence_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "previous": {
+      "type": "object",
+      "description": "원본 기록은 저장소 루트 기준 상대 경로로 찾고 원본 파일 바이트 해시로 확인한다.",
+      "properties": {
+        "run_id": {
+          "$ref": "#/$defs/id"
+        },
+        "round": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "type": {
+          "enum": [
+            "regression",
+            "retry",
+            "correction"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "record_path": {
+          "$ref": "#/$defs/relative_path"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "run_id",
+        "round",
+        "attempt",
+        "type",
+        "reason",
+        "record_path",
+        "sha256"
+      ],
+      "additionalProperties": false
+    },
+    "approval": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "enum": [
+            "pending",
+            "approved",
+            "rejected",
+            "not_requested"
+          ]
+        },
+        "actor": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1
+            }
+          ]
+        },
+        "at": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/time"
+            }
+          ]
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1,
+          "description": "실제 발주자 또는 사용자가 승인·거부한 범위와 대상 리비전."
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "status",
+        "actor",
+        "at"
+      ],
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "approved",
+              "rejected"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "actor": {
+            "type": "string",
+            "minLength": 1
+          },
+          "at": {
+            "$ref": "#/$defs/time"
+          },
+          "evidence_ids": {
+            "minItems": 1
+          }
+        },
+        "required": [
+          "scope",
+          "evidence_ids"
+        ]
+      },
+      "else": {
+        "properties": {
+          "actor": {
+            "type": "null"
+          },
+          "at": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "$ref": "#/$defs/terminal_status"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "description": "기술 판정의 근거. 인수 승인 상태를 바꾸지 않는다."
+        }
+      },
+      "required": [
+        "status",
+        "reason"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

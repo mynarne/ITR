@@ -30,7 +30,21 @@ MASCOTS = {
     MASCOT: ("a285982726212f9cf46b5c493cd42dc190bb161c9b677f80d44ed33927606157",
         "0 0 500 320", "ITR: real?", THINKING_DESCRIPTION),
 }
-CORE = {*MASCOTS, "SKILL.md", "README.md", "README.ko.md", "README.en.md", "VERSION", LEGACY, "qa/check_release.py"}
+LICENSE_HASHES = {
+    "LICENSE": "14665d018b6fb7372531679f3eb48c96ac6dcb460306520855c24d24c882f1c5",
+    "THIRD_PARTY_NOTICES.md": "b20caef470e741be5dcb63daec7f02ba6828a936cd9e1f8b8714d185d7bbe412",
+    "LICENSES/Apache-2.0.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "LICENSES/Droid-NOTICE.txt": "38751245389e1e23f73e6f5384b5cbe7fa972cc4410c5adc9c04b082a0b9561a",
+    "LICENSES/URW-OFL-1.1.txt": "3b709798a0943cbf824ed21b6b2c735e482cf6cb8fa11441e57381c2650253ca",
+}
+# Each exception is bound to the exact notice bytes checked in Audit.data.
+NOTICE_HOSTS = {
+    "THIRD_PARTY_NOTICES.md": {"raw.githubusercontent.com", "openfontlicense.org", "www.apache.org"},
+    "LICENSES/Apache-2.0.txt": {"www.apache.org"},
+    "LICENSES/Droid-NOTICE.txt": {"www.apache.org"},
+    "LICENSES/URW-OFL-1.1.txt": {"scripts.sil.org"},
+}
+CORE = {*LICENSE_HASHES, *MASCOTS, "SKILL.md", "README.md", "README.ko.md", "README.en.md", "VERSION", LEGACY, "qa/check_release.py"}
 FILES = set("""
 .gitignore VERSION README.md README.ko.md README.en.md SKILL.md VERIFICATION.ko.md MANIFEST.sha256
 docs/architecture.ko.md docs/assessment.ko.md docs/gates.ko.md docs/release.ko.md
@@ -40,7 +54,7 @@ qa/check_views.py qa/check_replay.cjs qa/check_browser.py qa/check_release.py qa
 schemas/README.md schemas/record.schema.json schemas/project-plan.schema.json schemas/validate.py
 tools/check_itr.py tools/itr.py tools/itr_store.py tools/itr_fixture.py tools/sample_receipt.py tools/progress.py
 views/render.py views/replay.template.html views/progress.html
-""".split()) | MASCOTS.keys()
+""".split()) | MASCOTS.keys() | LICENSE_HASHES.keys()
 NEW_FILES = set("""
 tools/project.py tools/project_plan.py tools/project_process.py tools/project_verify.py
 qa/check_project.py qa/check_progress.py qa/browser-check.rc1.json qa/project-check.rc1.json qa/pdf-pagination.rc1.json
@@ -48,6 +62,8 @@ qa/check_progress_dom.cjs qa/dom_test_double.cjs qa/progress-dom.rc1.json qa/pro
 examples/project/checks.py examples/project/inventory.py examples/project/plan-defect.json examples/project/plan.json examples/itr-selfcheck.json
 """.split())
 REVIEWED = {
+    **LICENSE_HASHES,
+    "examples/preview/report.pdf": "0a452738a9530ca8ccee7b909f499b5c1d44b097379f277d4bd8c36c2329a445",
     LEGACY: LEGACY_SHA256,
     **{name: spec[0] for name, spec in MASCOTS.items()},
     "examples/project/checks.py": "c1dec4f971b7a63194294344da2d8d28884a3e60683a36ca9640165da9f73a8a",
@@ -186,7 +202,7 @@ class Audit:
     def allowed(self, name):
         return name in FILES or name in NEW_FILES or name in self.original
 
-    def text(self, value, where):
+    def text(self, value, where, notice_hosts=()):
         for name, regex in RULES.items():
             match = regex.search(value)
             if match:
@@ -198,7 +214,7 @@ class Audit:
         for match in URL_HOST.finditer(value):
             host = match.group(1).lower()
             local = re.fullmatch(r"(?:localhost|127\.0\.0\.1|\[::1\])(?::[0-9]+)?", host)
-            require(local or host in DOMAINS, "unreviewed URL host · " + where)
+            require(local or host in DOMAINS or host in notice_hosts, "unreviewed URL host · " + where)
         lower = value.casefold()
         require(not any(t in lower for t in self.terms), "operator-supplied private term · " + where)
 
@@ -213,7 +229,7 @@ class Audit:
             require(checksum == self.original[name], "pinned synthetic sample changed · " + where)
         if name in MASCOTS:
             check_mascot(name, content)
-        key = (name.rsplit(".", 1)[-1], checksum)
+        key = (name, checksum)
         if key in self.scanned:
             return checksum
         if name.endswith(".pdf"):
@@ -237,7 +253,7 @@ class Audit:
                 value = content.decode("utf-8")
             except UnicodeDecodeError:
                 raise AuditError("non-UTF-8 text · " + where) from None
-            self.text(value, where)
+            self.text(value, where, NOTICE_HOSTS.get(name, ()))
         self.scanned.add(key)
         return checksum
 

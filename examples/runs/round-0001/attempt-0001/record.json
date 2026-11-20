@@ -1,0 +1,793 @@
+{
+  "run_id": "itr-fb61caf8278f4a2eb705aa02a9b8fd1e",
+  "round": 1,
+  "attempt": 1,
+  "created_at": "2026-11-20T09:46:03.919817+09:00",
+  "previous": null,
+  "schema_version": "1.0",
+  "input": {
+    "mode": "precision",
+    "product": "마을상점 영수증 · 합성 CLI",
+    "revision": "sha256:ed1c4234d066074ce37720bd540fbb1c1aecbbeeceb05e68325f7f39a054cede",
+    "baselines": [
+      {
+        "id": "G-TOTAL",
+        "kind": "goal",
+        "text": "고객에게 품목 금액과 배송비를 합한 원화 청구액을 표시한다.",
+        "version": "1.0"
+      },
+      {
+        "id": "R-FREE",
+        "kind": "requirement",
+        "text": "품목 합계가 10,000원 이상이면 배송비는 0원, 미만이면 3,000원이다.",
+        "version": "1.0"
+      },
+      {
+        "id": "R-CONTRACT",
+        "kind": "requirement",
+        "text": "영수증 JSON은 subtotal, shipping, total, currency 필드를 제공한다.",
+        "version": "1.0"
+      },
+      {
+        "id": "R-OFFLINE",
+        "kind": "rule",
+        "text": "합성 결제기는 원화 단위를 사용하고 외부 동기화를 끈다.",
+        "version": "1.0"
+      },
+      {
+        "id": "R-DEVICE",
+        "kind": "requirement",
+        "text": "선택된 실제 휴대 단말에서 현장 직원이 영수증을 읽을 수 있다.",
+        "version": "1.0"
+      },
+      {
+        "id": "R-LEDGER",
+        "kind": "requirement",
+        "text": "별도 합성 장부가 제공된 회차에만 외부 장부 인계 시나리오를 검증한다.",
+        "version": "1.0"
+      }
+    ],
+    "capabilities": [
+      {
+        "id": "local_python",
+        "available": true
+      },
+      {
+        "id": "source",
+        "available": true
+      },
+      {
+        "id": "physical_device",
+        "available": false
+      },
+      {
+        "id": "sandbox_ledger",
+        "available": false
+      }
+    ],
+    "checks": [
+      {
+        "id": "unit-subtotal",
+        "title": "품목 합계",
+        "stage": "unit",
+        "method": "execution",
+        "role": "runner",
+        "criteria": [
+          "G-TOTAL"
+        ],
+        "pass_condition": "2×2,500원과 1×1,000원의 품목 합계가 6,000원이다.",
+        "requires": [
+          "local_python"
+        ],
+        "depends_on": [],
+        "selected": true
+      },
+      {
+        "id": "bb-goal",
+        "title": "장바구니 결제",
+        "stage": "acceptance",
+        "method": "execution",
+        "role": "bb_goal",
+        "criteria": [
+          "G-TOTAL",
+          "R-FREE"
+        ],
+        "pass_condition": "6,000원 상품 2개의 청구액이 12,000원이며 배송비가 0원이다.",
+        "requires": [
+          "local_python"
+        ],
+        "depends_on": [
+          "system-receipt"
+        ],
+        "selected": true
+      },
+      {
+        "id": "bb-context",
+        "title": "소액 주문 영수증",
+        "stage": "system",
+        "method": "execution",
+        "role": "bb_context",
+        "criteria": [
+          "G-TOTAL",
+          "R-CONTRACT"
+        ],
+        "pass_condition": "4,000원 주문에서 배송비를 포함한 7,000원과 KRW가 출력된다.",
+        "requires": [
+          "local_python"
+        ],
+        "depends_on": [
+          "integration-basket"
+        ],
+        "selected": true
+      },
+      {
+        "id": "bb-boundary",
+        "title": "무료 배송 경계",
+        "stage": "system",
+        "method": "execution",
+        "role": "bb_boundary",
+        "criteria": [
+          "G-TOTAL",
+          "R-FREE"
+        ],
+        "pass_condition": "9,999원·10,000원·10,001원의 배송비가 순서대로 3,000·0·0원이다.",
+        "requires": [
+          "local_python"
+        ],
+        "depends_on": [
+          "integration-basket"
+        ],
+        "selected": true
+      },
+      {
+        "id": "wb-logic",
+        "title": "경계 비교식",
+        "stage": "unit",
+        "method": "inspection",
+        "role": "wb_logic",
+        "criteria": [
+          "R-FREE"
+        ],
+        "pass_condition": "배송비 분기의 AST가 subtotal >= 10000이고 참/거짓 금액이 0/3000이다.",
+        "requires": [
+          "source"
+        ],
+        "depends_on": [
+          "unit-subtotal"
+        ],
+        "selected": true
+      },
+      {
+        "id": "wb-contract",
+        "title": "영수증 출력 계약",
+        "stage": "integration",
+        "method": "inspection",
+        "role": "wb_contract",
+        "criteria": [
+          "R-CONTRACT"
+        ],
+        "pass_condition": "receipt가 반환하는 딕셔너리 키가 규정된 네 키와 일치한다.",
+        "requires": [
+          "source"
+        ],
+        "depends_on": [
+          "unit-subtotal"
+        ],
+        "selected": true
+      },
+      {
+        "id": "wb-config",
+        "title": "오프라인 설정",
+        "stage": "system",
+        "method": "inspection",
+        "role": "wb_config",
+        "criteria": [
+          "R-OFFLINE"
+        ],
+        "pass_condition": "설정 리터럴에서 통화 KRW 및 external_sync=false를 확인한다.",
+        "requires": [
+          "source"
+        ],
+        "depends_on": [
+          "unit-subtotal"
+        ],
+        "selected": true
+      },
+      {
+        "id": "integration-basket",
+        "title": "품목·배송비 결합",
+        "stage": "integration",
+        "method": "execution",
+        "role": "runner",
+        "criteria": [
+          "G-TOTAL",
+          "R-CONTRACT"
+        ],
+        "pass_condition": "품목 합계 5,500원에 배송비 3,000원을 더해 8,500원의 영수증을 만든다.",
+        "requires": [
+          "local_python"
+        ],
+        "depends_on": [
+          "unit-subtotal",
+          "wb-contract"
+        ],
+        "selected": true
+      },
+      {
+        "id": "system-receipt",
+        "title": "영수증 CLI 왕복",
+        "stage": "system",
+        "method": "execution",
+        "role": "runner",
+        "criteria": [
+          "G-TOTAL",
+          "R-CONTRACT"
+        ],
+        "pass_condition": "12,500원 입력이 배송비 0원 및 총액 12,500원의 JSON으로 출력된다.",
+        "requires": [
+          "local_python"
+        ],
+        "depends_on": [
+          "integration-basket",
+          "wb-contract"
+        ],
+        "selected": true
+      },
+      {
+        "id": "system-device",
+        "title": "실기기 열람",
+        "stage": "system",
+        "method": "execution",
+        "role": "runner",
+        "criteria": [
+          "R-DEVICE"
+        ],
+        "pass_condition": "실기기에서 직원이 추가 확대 없이 청구 총액을 정확히 읽는다.",
+        "requires": [
+          "physical_device"
+        ],
+        "depends_on": [
+          "integration-basket"
+        ],
+        "selected": true
+      },
+      {
+        "id": "link-ledger",
+        "title": "장부 인계",
+        "stage": "intersystem",
+        "method": "execution",
+        "role": "runner",
+        "criteria": [
+          "R-LEDGER"
+        ],
+        "pass_condition": "영수증과 장부 항목의 금액·통화가 일치한다.",
+        "requires": [
+          "sandbox_ledger"
+        ],
+        "depends_on": [
+          "integration-basket"
+        ],
+        "selected": false
+      }
+    ]
+  },
+  "events": [
+    {
+      "seq": 1,
+      "at": "2026-11-20T09:46:03.924384+09:00",
+      "check_id": "unit-subtotal",
+      "state": "queued",
+      "message": "고정된 검사 계획에 등록."
+    },
+    {
+      "seq": 2,
+      "at": "2026-11-20T09:46:03.925037+09:00",
+      "check_id": "bb-goal",
+      "state": "queued",
+      "message": "고정된 검사 계획에 등록."
+    },
+    {
+      "seq": 3,
+      "at": "2026-11-20T09:46:03.925536+09:00",
+      "check_id": "bb-context",
+      "state": "queued",
+      "message": "고정된 검사 계획에 등록."
+    },
+    {
+      "seq": 4,
+      "at": "2026-11-20T09:46:03.927177+09:00",
+      "check_id": "bb-boundary",
+      "state": "queued",
+      "message": "고정된 검사 계획에 등록."
+    },
+    {
+      "seq": 5,
+      "at": "2026-11-20T09:46:03.927801+09:00",
+      "check_id": "wb-logic",
+      "state": "queued",
+      "message": "고정된 검사 계획에 등록."
+    },
+    {
+      "seq": 6,
+      "at": "2026-11-20T09:46:03.928270+09:00",
+      "check_id": "wb-contract",
+      "state": "queued",
+      "message": "고정된 검사 계획에 등록."
+    },
+    {
+      "seq": 7,
+      "at": "2026-11-20T09:46:03.929054+09:00",
+      "check_id": "wb-config",
+      "state": "queued",
+      "message": "고정된 검사 계획에 등록."
+    },
+    {
+      "seq": 8,
+      "at": "2026-11-20T09:46:03.929890+09:00",
+      "check_id": "integration-basket",
+      "state": "queued",
+      "message": "고정된 검사 계획에 등록."
+    },
+    {
+      "seq": 9,
+      "at": "2026-11-20T09:46:03.930641+09:00",
+      "check_id": "system-receipt",
+      "state": "queued",
+      "message": "고정된 검사 계획에 등록."
+    },
+    {
+      "seq": 10,
+      "at": "2026-11-20T09:46:03.931201+09:00",
+      "check_id": "system-device",
+      "state": "queued",
+      "message": "고정된 검사 계획에 등록."
+    },
+    {
+      "seq": 11,
+      "at": "2026-11-20T09:46:03.931869+09:00",
+      "check_id": "link-ledger",
+      "state": "queued",
+      "message": "고정된 검사 계획에 등록."
+    },
+    {
+      "seq": 12,
+      "at": "2026-11-20T09:46:03.932710+09:00",
+      "check_id": "unit-subtotal",
+      "state": "running",
+      "message": "고정된 입력으로 검사 시작."
+    },
+    {
+      "seq": 13,
+      "at": "2026-11-20T09:46:03.934662+09:00",
+      "check_id": "unit-subtotal",
+      "state": "passed",
+      "message": "관찰값이 고정된 통과 조건과 일치."
+    },
+    {
+      "seq": 14,
+      "at": "2026-11-20T09:46:03.935530+09:00",
+      "check_id": "wb-logic",
+      "state": "running",
+      "message": "고정된 입력으로 검사 시작."
+    },
+    {
+      "seq": 15,
+      "at": "2026-11-20T09:46:03.936642+09:00",
+      "check_id": "wb-contract",
+      "state": "running",
+      "message": "고정된 입력으로 검사 시작."
+    },
+    {
+      "seq": 16,
+      "at": "2026-11-20T09:46:03.937462+09:00",
+      "check_id": "wb-config",
+      "state": "running",
+      "message": "고정된 입력으로 검사 시작."
+    },
+    {
+      "seq": 17,
+      "at": "2026-11-20T09:46:03.939220+09:00",
+      "check_id": "wb-logic",
+      "state": "failed",
+      "message": "shipping의 무료 배송 비교식에서 경계값이 제외됨."
+    },
+    {
+      "seq": 18,
+      "at": "2026-11-20T09:46:03.940837+09:00",
+      "check_id": "wb-contract",
+      "state": "passed",
+      "message": "관찰값이 고정된 통과 조건과 일치."
+    },
+    {
+      "seq": 19,
+      "at": "2026-11-20T09:46:03.941722+09:00",
+      "check_id": "wb-config",
+      "state": "passed",
+      "message": "관찰값이 고정된 통과 조건과 일치."
+    },
+    {
+      "seq": 20,
+      "at": "2026-11-20T09:46:03.942442+09:00",
+      "check_id": "integration-basket",
+      "state": "running",
+      "message": "고정된 입력으로 검사 시작."
+    },
+    {
+      "seq": 21,
+      "at": "2026-11-20T09:46:03.966778+09:00",
+      "check_id": "integration-basket",
+      "state": "passed",
+      "message": "관찰값이 고정된 통과 조건과 일치."
+    },
+    {
+      "seq": 22,
+      "at": "2026-11-20T09:46:03.967667+09:00",
+      "check_id": "bb-context",
+      "state": "running",
+      "message": "고정된 입력으로 검사 시작."
+    },
+    {
+      "seq": 23,
+      "at": "2026-11-20T09:46:03.968859+09:00",
+      "check_id": "bb-boundary",
+      "state": "running",
+      "message": "고정된 입력으로 검사 시작."
+    },
+    {
+      "seq": 24,
+      "at": "2026-11-20T09:46:03.969891+09:00",
+      "check_id": "system-receipt",
+      "state": "running",
+      "message": "고정된 입력으로 검사 시작."
+    },
+    {
+      "seq": 25,
+      "at": "2026-11-20T09:46:03.970726+09:00",
+      "check_id": "system-device",
+      "state": "blocked",
+      "message": "필수 실행 능력 미제공 · physical_device"
+    },
+    {
+      "seq": 26,
+      "at": "2026-11-20T09:46:03.971713+09:00",
+      "check_id": "link-ledger",
+      "state": "not_run",
+      "message": "선택적 장부 연동은 이번 범위에서 제외."
+    },
+    {
+      "seq": 27,
+      "at": "2026-11-20T09:46:03.988380+09:00",
+      "check_id": "bb-context",
+      "state": "passed",
+      "message": "관찰값이 고정된 통과 조건과 일치."
+    },
+    {
+      "seq": 28,
+      "at": "2026-11-20T09:46:04.003698+09:00",
+      "check_id": "system-receipt",
+      "state": "passed",
+      "message": "관찰값이 고정된 통과 조건과 일치."
+    },
+    {
+      "seq": 29,
+      "at": "2026-11-20T09:46:04.034123+09:00",
+      "check_id": "bb-boundary",
+      "state": "failed",
+      "message": "10,000원 주문에 배송비 3,000원이 청구됨."
+    },
+    {
+      "seq": 30,
+      "at": "2026-11-20T09:46:04.034853+09:00",
+      "check_id": "bb-goal",
+      "state": "running",
+      "message": "고정된 입력으로 검사 시작."
+    },
+    {
+      "seq": 31,
+      "at": "2026-11-20T09:46:04.053100+09:00",
+      "check_id": "bb-goal",
+      "state": "passed",
+      "message": "관찰값이 고정된 통과 조건과 일치."
+    }
+  ],
+  "results": [
+    {
+      "check_id": "unit-subtotal",
+      "status": "passed",
+      "detail": "관찰값이 고정된 통과 조건과 일치.",
+      "evidence_ids": [
+        "EV-unit-subtotal"
+      ]
+    },
+    {
+      "check_id": "bb-goal",
+      "status": "passed",
+      "detail": "관찰값이 고정된 통과 조건과 일치.",
+      "evidence_ids": [
+        "EV-bb-goal"
+      ]
+    },
+    {
+      "check_id": "bb-context",
+      "status": "passed",
+      "detail": "관찰값이 고정된 통과 조건과 일치.",
+      "evidence_ids": [
+        "EV-bb-context"
+      ]
+    },
+    {
+      "check_id": "bb-boundary",
+      "status": "failed",
+      "detail": "10,000원 주문에 배송비 3,000원이 청구됨.",
+      "evidence_ids": [
+        "EV-bb-boundary"
+      ]
+    },
+    {
+      "check_id": "wb-logic",
+      "status": "failed",
+      "detail": "shipping의 무료 배송 비교식에서 경계값이 제외됨.",
+      "evidence_ids": [
+        "EV-wb-logic"
+      ]
+    },
+    {
+      "check_id": "wb-contract",
+      "status": "passed",
+      "detail": "관찰값이 고정된 통과 조건과 일치.",
+      "evidence_ids": [
+        "EV-wb-contract"
+      ]
+    },
+    {
+      "check_id": "wb-config",
+      "status": "passed",
+      "detail": "관찰값이 고정된 통과 조건과 일치.",
+      "evidence_ids": [
+        "EV-wb-config"
+      ]
+    },
+    {
+      "check_id": "integration-basket",
+      "status": "passed",
+      "detail": "관찰값이 고정된 통과 조건과 일치.",
+      "evidence_ids": [
+        "EV-integration-basket"
+      ]
+    },
+    {
+      "check_id": "system-receipt",
+      "status": "passed",
+      "detail": "관찰값이 고정된 통과 조건과 일치.",
+      "evidence_ids": [
+        "EV-system-receipt"
+      ]
+    },
+    {
+      "check_id": "system-device",
+      "status": "blocked",
+      "detail": "필수 실행 능력 미제공 · physical_device",
+      "evidence_ids": []
+    },
+    {
+      "check_id": "link-ledger",
+      "status": "not_run",
+      "detail": "선택적 장부 연동은 이번 범위에서 제외.",
+      "evidence_ids": []
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-unit-subtotal",
+      "check_id": "unit-subtotal",
+      "kind": "log",
+      "path": "evidence/unit-subtotal.json",
+      "sha256": "f1e001f99aaa52a39d49b00a83a8041d1340147c0f4b58244abc2423d5695875"
+    },
+    {
+      "id": "EV-bb-goal",
+      "check_id": "bb-goal",
+      "kind": "log",
+      "path": "evidence/bb-goal.json",
+      "sha256": "f6296756f8b6581d2626ab6335267edf7524ea133e7cc16c7b5ca39d25a47bf5"
+    },
+    {
+      "id": "EV-bb-context",
+      "check_id": "bb-context",
+      "kind": "log",
+      "path": "evidence/bb-context.json",
+      "sha256": "6298c89bcbd033560e5c220e683c675c487ec379988b00f0f2c8cac60e759b25"
+    },
+    {
+      "id": "EV-bb-boundary",
+      "check_id": "bb-boundary",
+      "kind": "log",
+      "path": "evidence/bb-boundary.json",
+      "sha256": "28399ba1b821198b20bfdcb27a4bf881789f275f23a28b98fca7dcd447548c2a"
+    },
+    {
+      "id": "EV-wb-logic",
+      "check_id": "wb-logic",
+      "kind": "review",
+      "path": "evidence/wb-logic.json",
+      "sha256": "94698fe35dac1fa713be815287106317a1065e9e5be58fa4e26d4417fafc1c03"
+    },
+    {
+      "id": "EV-wb-contract",
+      "check_id": "wb-contract",
+      "kind": "review",
+      "path": "evidence/wb-contract.json",
+      "sha256": "b3f6ccab1ec6135794990610a33aa17c60521fba702bb56337f284f48799bf8e"
+    },
+    {
+      "id": "EV-wb-config",
+      "check_id": "wb-config",
+      "kind": "review",
+      "path": "evidence/wb-config.json",
+      "sha256": "b5050751d48359475abb550acb58c306356ff1020bd830fb459e10fd9ff9e97c"
+    },
+    {
+      "id": "EV-integration-basket",
+      "check_id": "integration-basket",
+      "kind": "log",
+      "path": "evidence/integration-basket.json",
+      "sha256": "495649d9a1848faa82e7d6f1fde367f23e700759b810a5406ecffd7e38a45c17"
+    },
+    {
+      "id": "EV-system-receipt",
+      "check_id": "system-receipt",
+      "kind": "log",
+      "path": "evidence/system-receipt.json",
+      "sha256": "d952b49882b0f5cbc52de4cc0b92f2ef17f9e461db409bd787eecbef2835e75f"
+    }
+  ],
+  "defects": [
+    {
+      "id": "D-001",
+      "fingerprint": "receipt.shipping.threshold.inclusive",
+      "check_ids": [
+        "bb-boundary",
+        "wb-logic"
+      ],
+      "baseline_ids": [
+        "G-TOTAL",
+        "R-FREE"
+      ],
+      "evidence_ids": [
+        "EV-bb-boundary",
+        "EV-wb-logic"
+      ],
+      "observed": "무료 배송 기준인 10,000원에서 경계 조건이 어긋난다.",
+      "cause_confirmed": "shipping 조건식이 subtotal > 10000이어서 같은 금액을 제외한다.",
+      "hypothesis": null,
+      "minimal_fix": "무료 배송 비교식에 같은 금액을 포함한다.",
+      "next_regression": "bb-boundary 및 wb-logic으로 9,999·10,000·10,001원 사례와 소스 조건을 재검사한다."
+    }
+  ],
+  "reviews": [
+    {
+      "role": "bb_goal",
+      "check_ids": [
+        "bb-goal"
+      ],
+      "verdict": "passed",
+      "evidence_ids": [
+        "EV-bb-goal"
+      ],
+      "sealed_at": "2026-11-20T09:46:04.052415+09:00"
+    },
+    {
+      "role": "bb_context",
+      "check_ids": [
+        "bb-context"
+      ],
+      "verdict": "passed",
+      "evidence_ids": [
+        "EV-bb-context"
+      ],
+      "sealed_at": "2026-11-20T09:46:03.987513+09:00"
+    },
+    {
+      "role": "bb_boundary",
+      "check_ids": [
+        "bb-boundary"
+      ],
+      "verdict": "failed",
+      "evidence_ids": [
+        "EV-bb-boundary"
+      ],
+      "sealed_at": "2026-11-20T09:46:04.033548+09:00"
+    },
+    {
+      "role": "wb_logic",
+      "check_ids": [
+        "wb-logic"
+      ],
+      "verdict": "failed",
+      "evidence_ids": [
+        "EV-wb-logic"
+      ],
+      "sealed_at": "2026-11-20T09:46:03.937581+09:00"
+    },
+    {
+      "role": "wb_contract",
+      "check_ids": [
+        "wb-contract"
+      ],
+      "verdict": "passed",
+      "evidence_ids": [
+        "EV-wb-contract"
+      ],
+      "sealed_at": "2026-11-20T09:46:03.939124+09:00"
+    },
+    {
+      "role": "wb_config",
+      "check_ids": [
+        "wb-config"
+      ],
+      "verdict": "passed",
+      "evidence_ids": [
+        "EV-wb-config"
+      ],
+      "sealed_at": "2026-11-20T09:46:03.940776+09:00"
+    }
+  ],
+  "approval": {
+    "status": "not_requested",
+    "actor": null,
+    "at": null
+  },
+  "decision": {
+    "status": "failed",
+    "reason": "선택한 검사 10건 중 통과 7, 실패 2, 차단 1, 미실행 0. 우선순위는 실패 → 차단 → 미실행 → 통과."
+  },
+  "extensions": {
+    "adapter": "itr.local.synthetic.v1",
+    "fixture": "broken",
+    "review_model": "isolated-input deterministic functions; six roles simulated locally",
+    "scope_reason": "전체 합성 계획과 현장 실기기 능력 확인",
+    "standards": [
+      {
+        "edition": "ISO/IEC 25010:2023",
+        "applied": true,
+        "reason": "영수증 기능 정확성을 입력·기대 금액으로 관찰한다."
+      },
+      {
+        "edition": "ISO/IEC 25019:2023",
+        "applied": true,
+        "reason": "소액 구매자 및 현장 직원의 과업을 명시한다. 실기기 사용자 경험은 미확인이다."
+      },
+      {
+        "edition": "ISO/IEC/IEEE 29119-1:2022",
+        "applied": true,
+        "reason": "검사 수준과 결과 상태의 뜻을 팀이 공통으로 사용한다."
+      },
+      {
+        "edition": "ISO/IEC/IEEE 29119-2:2021",
+        "applied": true,
+        "reason": "계획·환경 능력·실행·판정을 별도로 기록한다."
+      },
+      {
+        "edition": "ISO/IEC/IEEE 29119-3:2021",
+        "applied": true,
+        "reason": "각 검사 계획에 결과, 증거, 결함 식별자를 연결한다."
+      },
+      {
+        "edition": "ISO/IEC/IEEE 29119-4:2021",
+        "applied": true,
+        "reason": "무료 배송 경계 양옆의 9,999·10,000·10,001원을 조사한다."
+      },
+      {
+        "edition": "ISO/IEC 20246:2017",
+        "applied": true,
+        "reason": "배송 비교식, 계약, 설정을 소스 산출물 검토로 구분한다."
+      },
+      {
+        "edition": "ISO/IEC 25040:2024",
+        "applied": false,
+        "reason": "이번 단일 합성 제품 회차는 고정 목표·측정값·판정만으로 평가 범위를 기술한다."
+      }
+    ],
+    "regression": []
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "check_id": "wb-logic",
+  "condition": "배송비 분기의 AST가 subtotal >= 10000이고 참/거짓 금액이 0/3000이다.",
+  "trace": {
+    "source": "subject.py",
+    "method": "Python AST"
+  },
+  "expected": "IfExp(test=Compare(left=Name(id='subtotal', ctx=Load()), ops=[GtE()], comparators=[Constant(value=10000)]), body=Constant(value=0), orelse=Constant(value=3000))",
+  "observed": "IfExp(test=Compare(left=Name(id='subtotal', ctx=Load()), ops=[GtE()], comparators=[Constant(value=10000)]), body=Constant(value=0), orelse=Constant(value=3000))",
+  "status": "passed"
+}

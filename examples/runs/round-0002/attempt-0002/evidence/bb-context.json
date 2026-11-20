@@ -1,0 +1,25 @@
+{
+  "check_id": "bb-context",
+  "condition": "4,000원 주문에서 배송비를 포함한 7,000원과 KRW가 출력된다.",
+  "trace": {
+    "items": [
+      [
+        1,
+        4000
+      ]
+    ]
+  },
+  "expected": {
+    "subtotal": 4000,
+    "shipping": 3000,
+    "total": 7000,
+    "currency": "KRW"
+  },
+  "observed": {
+    "subtotal": 4000,
+    "shipping": 3000,
+    "total": 7000,
+    "currency": "KRW"
+  },
+  "status": "passed"
+}

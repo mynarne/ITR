@@ -1,0 +1,17 @@
+{
+  "check_id": "wb-config",
+  "condition": "설정 리터럴에서 통화 KRW 및 external_sync=false를 확인한다.",
+  "trace": {
+    "source": "subject.py",
+    "method": "Python AST"
+  },
+  "expected": {
+    "currency": "KRW",
+    "external_sync": false
+  },
+  "observed": {
+    "currency": "KRW",
+    "external_sync": false
+  },
+  "status": "passed"
+}

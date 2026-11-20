@@ -1,0 +1,45 @@
+{
+  "at": "2026-11-20T10:15:25.135604+09:00",
+  "engine": "PyMuPDF 1.26.6",
+  "cases": [
+    {
+      "case": "local-red",
+      "source_record_sha256": "905bf8d0aeabe4ffab52dd5e9f1586d94d3f682928473abb4f2f423d2c4c5bb5",
+      "source_print_html_sha256": "e0f5a9caeff2ad1ffa318b0633342356f443efa8d07d2fc2f68a2092b6326c6b",
+      "earlier_pdf_sha256": "0a271980549a23cee00cdf42fc4d1e142815c3bbb8f04bfe9c60452223d60462",
+      "generated_pdf_sha256": "13e12344a2af6810e8a64d43aad468cc300e82a8bd7da06070cc0c18c5d39d43",
+      "layout": "itr-layout=simple-flow",
+      "pages": 5,
+      "body_normalized_characters": 3953,
+      "views_gate": "passed",
+      "poppler_body_exact": true,
+      "source_unchanged": true
+    },
+    {
+      "case": "local-green",
+      "source_record_sha256": "4f70593eb50438e4f9a938680a8ef069a749f7c93bbb5f67a7bc6176c6422bb7",
+      "source_print_html_sha256": "5855420113eafbb6ac6729ffda5071edf863da5482770447c4895518e152115d",
+      "earlier_pdf_sha256": null,
+      "generated_pdf_sha256": "e0b84db4b7ad602062378260c1e8a757ed09ecef46507be7ab99c4d7873bacff",
+      "layout": "itr-layout=source",
+      "pages": 4,
+      "body_normalized_characters": 2548,
+      "views_gate": "passed",
+      "poppler_body_exact": true,
+      "source_unchanged": true
+    },
+    {
+      "case": "reference",
+      "source_record_sha256": "51e474a90a6d5c7aa28899cbf2c4812e63ac5c08d33004c90add262e0451b742",
+      "source_print_html_sha256": "d5e7722c0fb21a527ff45e90faa76a1695811c0757c70b2b17e6dcc555a873f8",
+      "earlier_pdf_sha256": "0a452738a9530ca8ccee7b909f499b5c1d44b097379f277d4bd8c36c2329a445",
+      "generated_pdf_sha256": "23f15304883ad995962668019712d7fc4192fc54d4c266d3a7da31093f31007a",
+      "layout": "itr-layout=source",
+      "pages": 13,
+      "body_normalized_characters": 8846,
+      "views_gate": "passed",
+      "poppler_body_exact": true,
+      "source_unchanged": true
+    }
+  ]
+}

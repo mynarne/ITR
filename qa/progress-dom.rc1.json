@@ -1,0 +1,43 @@
+{
+  "at": "2026-11-20T10:02:42.432592+09:00",
+  "record_sha256": "51e474a90a6d5c7aa28899cbf2c4812e63ac5c08d33004c90add262e0451b742",
+  "node_version": "v24.22.3",
+  "progress_template_sha256": "4573e1508fb5483fe5daf4a7abf2819a01a74ad2f5316d731590046fad88a745",
+  "replay_template_sha256": "81863588720a7c49714b784c7a73cf2d113c8ddc23d53f3a75d21833b87aad14",
+  "progress": {
+    "renderer": "Node DOM test double",
+    "observedSnapshots": [
+      "waiting",
+      "live",
+      "interrupted",
+      "unconfirmed",
+      "invalid",
+      "synchronizing",
+      "once",
+      "stopped",
+      "stale-heartbeat",
+      "index-error",
+      "sealed"
+    ],
+    "cards": 11,
+    "parallelCards": 3,
+    "explicitScrolls": 1,
+    "unsolicitedScrolls": 0,
+    "sealedReportLink": "reports/round-0001-attempt-0001/replay.html",
+    "cssSelectorsInspected": true,
+    "pixelsMeasured": false,
+    "passed": true
+  },
+  "regenerated_replay_sha256": "51c92b6e04de58f05b0738239cf23d446fb06a52800668a6f94eb6989da04abc",
+  "selected_final_check": "bb-boundary",
+  "regenerated_replay": {
+    "renderer": "Node DOM test double",
+    "cursors": 32,
+    "cards": 11,
+    "dependencyEdges": 12,
+    "peakParallel": 3,
+    "preMergeFailedChecked": true,
+    "automaticScrolls": 0,
+    "passed": true
+  }
+}

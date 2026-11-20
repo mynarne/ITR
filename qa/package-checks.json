@@ -1,0 +1,127 @@
+{
+  "verified_at_kst": "2026-11-20T09:48:25+09:00",
+  "os": "Linux",
+  "architecture": "x86_64",
+  "python": "3.12.14",
+  "commands": [
+    {
+      "command": "python3 -B tools/check_itr.py",
+      "exit_code": 0,
+      "stdout": "PASS · 합성 제품 실제 검사 · 네 상태 · 역할 봉인 6건 · 같은 결함 관측 2건 통합 · 승인 분리\nPASS · 동시 작성 2개 중 1개만 예약 · 충돌/정정 사유/리비전 변경 거부 · 첫 시도 전체 보존\nPASS · 회차 회귀 · 결함별 재검사 통과 · 잔여 차단 · 일상 범위 통과 · 정정 링크와 원본 해시\nPASS · 증거 바이트 변조 및 원본 이벤트 변경을 복제본에서 탐지\nPASS · 완결 전 오류 주입 · 실패 기록/이미 생긴 증거 보존 · 최신 기록 제외 · 새 시도로 복구\nITR 로컬 합성 회귀 검사 완료."
+    },
+    {
+      "command": "python3 -B qa/check_views.py examples/runs/round-0001/attempt-0001/record.json examples/preview --pdf",
+      "exit_code": 0,
+      "stdout": "OK 51e474a90a6d5c7aa28899cbf2c4812e63ac5c08d33004c90add262e0451b742 · 11 checks · 1 unique defects · 13 PDF pages"
+    },
+    {
+      "command": "python3 -B schemas/validate.py examples/runs/round-0001/attempt-0001/record.json",
+      "exit_code": 0,
+      "stdout": "형식 유효  examples/runs/round-0001/attempt-0001/record.json"
+    },
+    {
+      "command": "python3 -B schemas/validate.py --part input examples/runs/round-0001/attempt-0001/input.json",
+      "exit_code": 0,
+      "stdout": "형식 유효  examples/runs/round-0001/attempt-0001/input.json"
+    }
+  ],
+  "standard_schema_validation": {
+    "validator": "jsonschema.Draft202012Validator + FormatChecker",
+    "records": 5,
+    "passed": true
+  },
+  "attempts": [
+    {
+      "path": "examples/runs/round-0001/attempt-0001/record.json",
+      "sha256": "51e474a90a6d5c7aa28899cbf2c4812e63ac5c08d33004c90add262e0451b742",
+      "checks": {
+        "passed": 7,
+        "failed": 2,
+        "blocked": 1,
+        "not_run": 1
+      },
+      "unique_defects": 1,
+      "decision": "failed",
+      "approval": "not_requested",
+      "verified": {
+        "command": "python3 -B tools/itr.py verify examples/runs/round-0001/attempt-0001/record.json",
+        "exit_code": 0,
+        "stdout": "검증 통과 · itr-fb61caf8278f4a2eb705aa02a9b8fd1e · 2026-11-20T09:46:03.919817+09:00 KST"
+      }
+    },
+    {
+      "path": "examples/runs/round-0001/attempt-0002/record.json",
+      "sha256": "4fee5bf3b4c9e555775773244fdb8f52b18aeeb9d7dc9aabc5db18db6d58b85a",
+      "checks": {
+        "passed": 7,
+        "failed": 2,
+        "blocked": 1,
+        "not_run": 1
+      },
+      "unique_defects": 1,
+      "decision": "failed",
+      "approval": "not_requested",
+      "verified": {
+        "command": "python3 -B tools/itr.py verify examples/runs/round-0001/attempt-0002/record.json",
+        "exit_code": 0,
+        "stdout": "검증 통과 · itr-fcdf5ee9fe144231840f51e8c2aae51d · 2026-11-20T09:46:18.503050+09:00 KST"
+      }
+    },
+    {
+      "path": "examples/runs/round-0002/attempt-0001/record.json",
+      "sha256": "38c54d774b4ca87b80a37b1dbbaf9926de428f58aa1ceb849ea62a54069ded7f",
+      "checks": {
+        "passed": 9,
+        "blocked": 1,
+        "not_run": 1
+      },
+      "unique_defects": 0,
+      "decision": "blocked",
+      "approval": "not_requested",
+      "verified": {
+        "command": "python3 -B tools/itr.py verify examples/runs/round-0002/attempt-0001/record.json",
+        "exit_code": 0,
+        "stdout": "검증 통과 · itr-1f351c99641f414d8cd4dc46abb4e995 · 2026-11-20T09:46:18.714804+09:00 KST"
+      }
+    },
+    {
+      "path": "examples/runs/round-0002/attempt-0002/record.json",
+      "sha256": "73062f157bdf22af68a019ac540863c90716c158c2305956f1210c405627a3af",
+      "checks": {
+        "passed": 9,
+        "blocked": 1,
+        "not_run": 1
+      },
+      "unique_defects": 0,
+      "decision": "blocked",
+      "approval": "not_requested",
+      "verified": {
+        "command": "python3 -B tools/itr.py verify examples/runs/round-0002/attempt-0002/record.json",
+        "exit_code": 0,
+        "stdout": "검증 통과 · itr-8e2dc944c5294821b538273b46d6ac8f · 2026-11-20T09:46:18.903759+09:00 KST"
+      }
+    },
+    {
+      "path": "examples/runs/round-0003/attempt-0001/record.json",
+      "sha256": "70bed5866a1e400854fd07e4cd2b55cc51b88d339cc463f92dcbae66a0be7385",
+      "checks": {
+        "passed": 7,
+        "not_run": 4
+      },
+      "unique_defects": 0,
+      "decision": "passed",
+      "approval": "not_requested",
+      "verified": {
+        "command": "python3 -B tools/itr.py verify examples/runs/round-0003/attempt-0001/record.json",
+        "exit_code": 0,
+        "stdout": "검증 통과 · itr-6cb83641a0274094a48b0319f2016f27 · 2026-11-20T09:46:19.092525+09:00 KST"
+      }
+    }
+  ],
+  "views_sha256": {
+    "print.html": "d5e7722c0fb21a527ff45e90faa76a1695811c0757c70b2b17e6dcc555a873f8",
+    "replay.html": "6140154e8c7b0edfd3419690ad2a232780ea95221bba3c1899e03695c8ec9136",
+    "report.md": "0d930c7ad2ed47d406cc0097468327fb6a3ff1f5767c69139dd3802fa619201a",
+    "report.pdf": "0a452738a9530ca8ccee7b909f499b5c1d44b097379f277d4bd8c36c2329a445"
+  }
+}

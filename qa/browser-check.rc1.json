@@ -1,0 +1,12 @@
+{
+  "target": "replay.html",
+  "sha256": "6140154e8c7b0edfd3419690ad2a232780ea95221bba3c1899e03695c8ec9136",
+  "at": "2026-11-20T09:57:10.899785+09:00",
+  "renderer": "Chromium",
+  "status": "blocked",
+  "observations": [],
+  "reason_code": "CHROMIUM_SOCKET_DENIED",
+  "reason": "Chromium process initialization: socket() failed: Operation not permitted (1).",
+  "source_log_sha256": "991ec490b3c6aaed7f6ecd11fe1c487b3c3af8f03296f457e8e8b6c9c9172e12",
+  "source_evidence_type": "local browser-check.json; original retained outside distributable"
+}

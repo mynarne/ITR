@@ -1,0 +1,25 @@
+{
+  "check_id": "system-receipt",
+  "condition": "12,500원 입력이 배송비 0원 및 총액 12,500원의 JSON으로 출력된다.",
+  "trace": {
+    "items": [
+      [
+        1,
+        12500
+      ]
+    ]
+  },
+  "expected": {
+    "subtotal": 12500,
+    "shipping": 0,
+    "total": 12500,
+    "currency": "KRW"
+  },
+  "observed": {
+    "subtotal": 12500,
+    "shipping": 0,
+    "total": 12500,
+    "currency": "KRW"
+  },
+  "status": "passed"
+}

@@ -2,13 +2,17 @@
 
 [한국어](README.ko.md) · [English](README.md) · **1.0.0-rc.3** · [![CI](https://github.com/mynarne/ITR/actions/workflows/ci.yml/badge.svg)](https://github.com/mynarne/ITR/actions/workflows/ci.yml)
 
-AI가 작업을 마쳤다고 답했을 때, 어느 요구사항까지 실제로 확인됐을까? ITR은 그 질문에 증거로 답하는 독립 소프트웨어 QA 스킬이다. 실행 전에 제품 리비전과 목표, 이번에 선택한 스킬 규칙, 프로젝트 요구사항의 버전을 고정한다. 검사마다 확인할 기준, 통과로 인정할 관찰값, 그 증거를 얻을 수 있는 환경을 정한다. 에이전트마다 다른 모델을 써도 같은 로컬 기록을 이어 읽을 수 있으며 운영 서버도 필요 없다. 사용자에게 보이는 날짜와 시각은 한국 표준시(KST)로 표시한다.
+**AI가 “다 됐다”고 했을 때, 진짜로 확인된 건 뭘까?**
+
+ITR(Is This Real?)은 AI가 만든 소프트웨어를 배포하거나 인계하기 전에, 요구사항대로 동작하는지 증거로 확인하는 QA 스킬입니다. 코드·문서 검토를 안내하고 승인된 테스트를 실행해, 무엇이 통과했고 무엇이 실패했는지, 무엇을 확인하지 못했는지 근거와 함께 보여줍니다.
 
 ![한 손으로 턱을 괴고 다른 손에 파란 돋보기를 낮춰 든 채 AI 글씨를 살피는 막대인간](assets/itr-mascot-aligned.svg)
 
-[진행 지도 리플레이 열기](examples/preview/replay.html) · [같은 시도의 PDF 보기](examples/preview/report.pdf) · [RC.3 검증](docs/verification-rc3.ko.md) · [RC.2 후속 검증](docs/verification-rc2-followup.ko.md) · [이전 RC.2 검증](docs/verification-rc2.ko.md) · [에이전트 지침](SKILL.md)
+[샘플 PDF 보고서 보기](examples/preview/report.pdf) · [진행 지도 리플레이 열기](examples/preview/replay.html) · [RC.3 검증](docs/verification-rc3.ko.md) · [RC.2 후속 검증](docs/verification-rc2-followup.ko.md) · [이전 RC.2 검증](docs/verification-rc2.ko.md) · [에이전트 지침](SKILL.md)
 
 ## 한 회차에서 무엇을 읽을 수 있나
+
+실행 전에 제품 리비전과 목표, 이번에 선택한 스킬 규칙, 프로젝트 요구사항의 버전을 고정한다. 검사마다 확인할 기준, 통과로 인정할 관찰값, 그 증거를 얻을 수 있는 환경을 정한다. 에이전트마다 다른 모델을 써도 같은 로컬 기록을 이어 읽을 수 있으며 운영 서버도 필요 없다. 사용자에게 보이는 날짜와 시각은 한국 표준시(KST)로 표시한다.
 
 진행 지도에서 단위·통합·시스템·인수 시나리오와 필요한 경우 시스템 간 통합 검사를 단계와 검토 역할별로 따라간다. 실패 카드를 열면 어긋난 목표나 요구사항에서 로그 또는 수집한 캡처로 이동할 수 있다. 러너는 실행 전에 정한 `fingerprint`로 실패를 묶으며, 기본은 검사당 한 건이다. 확인 원인과 가설은 비어 있다. 자동으로 들어가는 수정·재검사 문구는 검토자가 채울 내용을 안내한다.
 

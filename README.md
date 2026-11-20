@@ -2,13 +2,17 @@
 
 [English](README.md) · [한국어](README.ko.md) · **1.0.0-rc.3** · [![CI](https://github.com/mynarne/ITR/actions/workflows/ci.yml/badge.svg)](https://github.com/mynarne/ITR/actions/workflows/ci.yml)
 
-When an AI agent reports that a change is complete, which requirements have actually been verified? ITR is an independent software QA skill for answering that question. Before a run, it pins the product revision, goals, selected skill rules and project requirements. Each check names the requirement it covers, what must be observed for it to pass, and which environment can produce that evidence. Agents can share the local record without using the same model or running a server. Times are displayed in KST (UTC+09:00).
+**When an AI agent says “done,” what has actually been verified?**
+
+ITR (Is This Real?) is a QA skill for checking AI-built software against your requirements before release or handoff. It guides code and document review, runs approved tests, and shows what passed, what failed, and what couldn’t be checked, with evidence for each result.
 
 ![A stick figure studies the letters AI, resting its chin on one hand and holding a blue magnifying glass low in the other](assets/itr-mascot-aligned.svg)
 
-[Open the offline replay](examples/preview/replay.html) · [Read the PDF from the same attempt](examples/preview/report.pdf) · [RC.3 verification](docs/verification-rc3.ko.md) · [RC.2 follow-up verification](docs/verification-rc2-followup.ko.md) · [Prior RC.2 verification](docs/verification-rc2.ko.md) · [Skill instructions](SKILL.md)
+[Read the sample PDF report](examples/preview/report.pdf) · [Open the offline replay](examples/preview/replay.html) · [RC.3 verification](docs/verification-rc3.ko.md) · [RC.2 follow-up verification](docs/verification-rc2-followup.ko.md) · [Prior RC.2 verification](docs/verification-rc2.ko.md) · [Skill instructions](SKILL.md)
 
 ## What a verification round tells you
+
+Before a run, it pins the product revision, goals, selected skill rules and project requirements. Each check names the requirement it covers, what must be observed for it to pass, and which environment can produce that evidence. Agents can share the local record without using the same model or running a server. Times are displayed in KST (UTC+09:00).
 
 The stage map follows checks from unit through integration, system and acceptance scenarios, with system-to-system integration where relevant. Lanes show the stage and review role. Select a failed check to see the requirement it missed and follow the saved log or available capture. The project runner groups failures by the plan's predeclared fingerprint, with one group per check by default. Cause and hypothesis start empty. The generated fix and regression text are prompts for the reviewer.
 

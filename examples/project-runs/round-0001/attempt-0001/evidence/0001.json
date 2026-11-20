@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "{python}",
+    "-I",
+    "-B",
+    "checks.py",
+    "regular"
+  ],
+  "started_at": "2026-11-20T10:05:49.680370+09:00",
+  "finished_at": "2026-11-20T10:05:49.753449+09:00",
+  "exit_code": 0,
+  "elapsed_s": 0.073084,
+  "stdout": "remaining=5 expected=ready actual=ready\n",
+  "stderr": "",
+  "retained_limit_per_stream": 65536,
+  "stdout_bytes": 40,
+  "stdout_truncated": false,
+  "stderr_bytes": 0,
+  "stderr_truncated": false,
+  "pass_marker": "remaining=5 expected=ready actual=ready",
+  "pass_marker_seen": true,
+  "check_id": "stock-ready",
+  "pass_condition": "수량 5의 CLI 출력이 ready이고 검사 로그에 기대값과 실제값이 있다.",
+  "status": "passed",
+  "detail": "승인한 테스트 명령이 정상 종료했습니다."
+}

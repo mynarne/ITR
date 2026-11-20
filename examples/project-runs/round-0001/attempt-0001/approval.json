@@ -1,0 +1,26 @@
+{
+  "approval_sha256": "9ba28aeb4568e367fd6dcef7d63eccf957f6890c0db9b53d1eae44e4296c480c",
+  "plan_sha256": "89fcc130dbe6a142c9f3d52f13ec71a78cfb74b28c9302c97ef919f516a08c24",
+  "files": [
+    {
+      "path": "checks.py",
+      "sha256": "c1dec4f971b7a63194294344da2d8d28884a3e60683a36ca9640165da9f73a8a",
+      "executable": false
+    },
+    {
+      "path": "inventory.py",
+      "sha256": "d70dd95ea16a575a71a198ae5ceac507710d7776846104172b3c401d0c2ce0e1",
+      "executable": false
+    }
+  ],
+  "executables": {
+    "{python}": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+  },
+  "workspace_sha256": "73d3ebf9c74099e253adc993f2eb9f14710785d16285c8acf849947ab52e19df",
+  "capabilities": [
+    {
+      "id": "local_command",
+      "available": true
+    }
+  ]
+}

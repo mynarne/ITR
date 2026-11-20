@@ -1,0 +1,193 @@
+{
+  "run_id": "itr-beb81027f47a4e109bdbf2376f9faabf",
+  "round": 1,
+  "attempt": 1,
+  "created_at": "2026-11-20T10:05:49.671283+09:00",
+  "previous": null,
+  "schema_version": "1.0",
+  "input": {
+    "mode": "delta",
+    "product": "합성 재고 분류기",
+    "revision": "inventory-demo-1",
+    "baselines": [
+      {
+        "id": "G-STOCK",
+        "kind": "goal",
+        "version": "1",
+        "text": "담당자는 남은 재고 수량에 맞는 상태를 볼 수 있다."
+      },
+      {
+        "id": "R-LABEL",
+        "kind": "requirement",
+        "version": "1",
+        "text": "재고가 0이면 empty, 1~2개면 low, 3개 이상이면 ready를 표시한다."
+      },
+      {
+        "id": "S-EVIDENCE",
+        "kind": "rule",
+        "version": "1",
+        "text": "선택한 실행 검사는 수량·기대값·실제값을 증거 로그로 남긴다."
+      }
+    ],
+    "capabilities": [
+      {
+        "id": "local_command",
+        "available": true
+      }
+    ],
+    "checks": [
+      {
+        "id": "stock-ready",
+        "title": "보통 재고의 표시",
+        "stage": "system",
+        "method": "execution",
+        "criteria": [
+          "G-STOCK",
+          "R-LABEL",
+          "S-EVIDENCE"
+        ],
+        "pass_condition": "수량 5의 CLI 출력이 ready이고 검사 로그에 기대값과 실제값이 있다.",
+        "requires": [
+          "local_command"
+        ],
+        "role": "runner",
+        "selected": true,
+        "depends_on": []
+      },
+      {
+        "id": "stock-low",
+        "title": "낮은 재고 경계의 표시",
+        "stage": "system",
+        "method": "execution",
+        "criteria": [
+          "G-STOCK",
+          "R-LABEL",
+          "S-EVIDENCE"
+        ],
+        "pass_condition": "수량 2의 CLI 출력이 low이고 검사 로그에 기대값과 실제값이 있다.",
+        "requires": [
+          "local_command"
+        ],
+        "role": "runner",
+        "selected": true,
+        "depends_on": []
+      }
+    ]
+  },
+  "events": [
+    {
+      "seq": 1,
+      "at": "2026-11-20T10:05:49.677288+09:00",
+      "check_id": "stock-ready",
+      "state": "queued",
+      "message": "승인된 검사를 등록했습니다."
+    },
+    {
+      "seq": 2,
+      "at": "2026-11-20T10:05:49.678221+09:00",
+      "check_id": "stock-low",
+      "state": "queued",
+      "message": "승인된 검사를 등록했습니다."
+    },
+    {
+      "seq": 3,
+      "at": "2026-11-20T10:05:49.679418+09:00",
+      "check_id": "stock-ready",
+      "state": "running",
+      "message": "승인된 로컬 명령의 작업 사본을 준비합니다."
+    },
+    {
+      "seq": 4,
+      "at": "2026-11-20T10:05:49.680499+09:00",
+      "check_id": "stock-low",
+      "state": "running",
+      "message": "승인된 로컬 명령의 작업 사본을 준비합니다."
+    },
+    {
+      "seq": 5,
+      "at": "2026-11-20T10:05:49.754954+09:00",
+      "check_id": "stock-ready",
+      "state": "passed",
+      "message": "승인한 테스트 명령이 정상 종료했습니다."
+    },
+    {
+      "seq": 6,
+      "at": "2026-11-20T10:05:49.759474+09:00",
+      "check_id": "stock-low",
+      "state": "passed",
+      "message": "승인한 테스트 명령이 정상 종료했습니다."
+    }
+  ],
+  "results": [
+    {
+      "check_id": "stock-ready",
+      "status": "passed",
+      "detail": "승인한 테스트 명령이 정상 종료했습니다.",
+      "evidence_ids": [
+        "EV-0001"
+      ]
+    },
+    {
+      "check_id": "stock-low",
+      "status": "passed",
+      "detail": "승인한 테스트 명령이 정상 종료했습니다.",
+      "evidence_ids": [
+        "EV-0002"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-0001",
+      "check_id": "stock-ready",
+      "kind": "log",
+      "path": "evidence/0001.json",
+      "sha256": "a2d0fffc0dfc77d74f14095a288a064bbedf7d3b8dddadd8b094ebffcef49b36"
+    },
+    {
+      "id": "EV-0002",
+      "check_id": "stock-low",
+      "kind": "log",
+      "path": "evidence/0002.json",
+      "sha256": "577196abe40599c5bb40334085c16105db25793c0411171ad7415472c100f30b"
+    }
+  ],
+  "defects": [],
+  "reviews": [],
+  "approval": {
+    "status": "not_requested",
+    "actor": null,
+    "at": null
+  },
+  "decision": {
+    "status": "passed",
+    "reason": "선택한 검사 기준의 기술 판정. 실패, 차단, 미실행, 통과의 순으로 집계."
+  },
+  "extensions": {
+    "adapter": "itr.local.project.v1",
+    "approval_sha256": "9ba28aeb4568e367fd6dcef7d63eccf957f6890c0db9b53d1eae44e4296c480c",
+    "standards": [
+      {
+        "edition": "ISO/IEC 25010:2023",
+        "applied": true,
+        "reason": "합성 제품의 수량별 표시 기능을 요구사항과 대조한다."
+      },
+      {
+        "edition": "ISO/IEC 25019:2023",
+        "applied": false,
+        "reason": "이 합성 CLI 실행에는 실제 사용자와 사용 맥락 관찰이 포함되지 않는다."
+      },
+      {
+        "edition": "ISO/IEC/IEEE 29119-4:2021",
+        "applied": true,
+        "reason": "고정한 재고 구간의 대표값과 경계값으로 검사를 설계한다."
+      },
+      {
+        "edition": "ISO/IEC 20246:2017",
+        "applied": false,
+        "reason": "이번 예제 계획의 선택 범위는 CLI 실행이며 별도 산출물 인스펙션을 하지 않는다."
+      }
+    ],
+    "regression": []
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "mode": "delta",
+  "product": "합성 재고 분류기",
+  "revision": "inventory-demo-1",
+  "baselines": [
+    {
+      "id": "G-STOCK",
+      "kind": "goal",
+      "version": "1",
+      "text": "담당자는 남은 재고 수량에 맞는 상태를 볼 수 있다."
+    },
+    {
+      "id": "R-LABEL",
+      "kind": "requirement",
+      "version": "1",
+      "text": "재고가 0이면 empty, 1~2개면 low, 3개 이상이면 ready를 표시한다."
+    },
+    {
+      "id": "S-EVIDENCE",
+      "kind": "rule",
+      "version": "1",
+      "text": "선택한 실행 검사는 수량·기대값·실제값을 증거 로그로 남긴다."
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "local_command",
+      "available": true
+    }
+  ],
+  "checks": [
+    {
+      "id": "stock-ready",
+      "title": "보통 재고의 표시",
+      "stage": "system",
+      "method": "execution",
+      "criteria": [
+        "G-STOCK",
+        "R-LABEL",
+        "S-EVIDENCE"
+      ],
+      "pass_condition": "수량 5의 CLI 출력이 ready이고 검사 로그에 기대값과 실제값이 있다.",
+      "requires": [
+        "local_command"
+      ],
+      "role": "runner",
+      "selected": true,
+      "depends_on": []
+    },
+    {
+      "id": "stock-low",
+      "title": "낮은 재고 경계의 표시",
+      "stage": "system",
+      "method": "execution",
+      "criteria": [
+        "G-STOCK",
+        "R-LABEL",
+        "S-EVIDENCE"
+      ],
+      "pass_condition": "수량 2의 CLI 출력이 low이고 검사 로그에 기대값과 실제값이 있다.",
+      "requires": [
+        "local_command"
+      ],
+      "role": "runner",
+      "selected": true,
+      "depends_on": []
+    }
+  ]
+}

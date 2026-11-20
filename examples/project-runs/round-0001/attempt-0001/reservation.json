@@ -1,0 +1,13 @@
+{
+  "run_id": "itr-beb81027f47a4e109bdbf2376f9faabf",
+  "round": 1,
+  "attempt": 1,
+  "created_at": "2026-11-20T10:05:49.671283+09:00",
+  "previous": null,
+  "project_scope": {
+    "product": "합성 재고 분류기",
+    "revision": "inventory-demo-1",
+    "files_sha256": "5f6958408fb176883e311a3888a1fa6d04f9988685391d42247a3c314ffdadb7"
+  },
+  "approval_sha256": "9ba28aeb4568e367fd6dcef7d63eccf957f6890c0db9b53d1eae44e4296c480c"
+}

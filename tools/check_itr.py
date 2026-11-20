@@ -125,6 +125,9 @@ def suite(root):
 
 
 if __name__ == "__main__":
+    # Korean result lines must not crash a non-UTF-8 console (e.g. cp1252 on Windows runners).
+    for stream in (sys.stdout, sys.stderr):
+        stream.reconfigure(encoding="utf-8", errors="backslashreplace")
     with tempfile.TemporaryDirectory(prefix="itr-qa-") as isolated:
         suite(Path(isolated))
     print("ITR 로컬 합성 회귀 검사 완료.")

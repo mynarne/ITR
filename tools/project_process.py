@@ -85,7 +85,9 @@ def run_command(command, binding, payloads, actual_paths, stop, report):
     begin = time.monotonic()
     status, reason = "blocked", "실행기를 시작하지 못했습니다."
     with tempfile.TemporaryDirectory(prefix="itr-project-case-") as work:
-        cwd, temp = Path(work) / "work", Path(work) / "temp"
+        # One canonical path for the child: on macOS /var is a symlink to /private/var.
+        base = Path(work).resolve()
+        cwd, temp = base / "work", base / "temp"
         cwd.mkdir()
         temp.mkdir()
         for spec in binding["files"]:

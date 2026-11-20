@@ -638,4 +638,7 @@ def main():
 
 
 if __name__ == "__main__":
+    # Korean result lines must not crash a non-UTF-8 console (e.g. cp1252 on Windows runners).
+    for stream in (sys.stdout, sys.stderr):
+        stream.reconfigure(encoding="utf-8", errors="backslashreplace")
     main()

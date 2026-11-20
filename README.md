@@ -79,7 +79,7 @@ New plans use `"adapter_version": "1.1"`. Every check lists, in `standards`, the
 | Browser | Replay and live-map behavior tested using a DOM test double. The actual Chromium launch was blocked by the host's socket policy before navigation; pixel layout, mobile rendering and animation frames remain unverified. |
 | Other operating systems and AI clients | The JSON contract, capability selection and adapter design are portable. Windows is measured in the row above. macOS, devices and independent third-party AI sessions are not yet measured. |
 | Reporting | Markdown, self-contained replay, print HTML and an actual PDF were checked. Only optional PDF generation/QA needs PyMuPDF. |
-| GitHub Actions | Every push and pull request runs the project, progress and synthetic regressions, the sealed records, the self-check plan and the release audit on Ubuntu, Windows and macOS with Python 3.9 and 3.12, plus PDF, view and replay checks on Ubuntu. See [ci.yml](.github/workflows/ci.yml). |
+| GitHub Actions | Every push and pull request runs the project, progress and synthetic regressions, the sealed records, the self-check plan and the release audit on Ubuntu, Windows and macOS with Python 3.12 and the oldest available release (3.9 on Windows and macOS, 3.10 on Ubuntu), plus PDF, view and replay checks on Ubuntu. See [ci.yml](.github/workflows/ci.yml). |
 
 ```sh
 python3 -B qa/check_project.py

@@ -80,7 +80,7 @@ Windows는 `{python}`과 `-m pytest`, 또는 신뢰하는 절대 `.exe` 경로�
 | 다른 OS / 시뮬레이터 / 실기기 | 공통 입력과 능력 탐지 계약을 제공한다. Windows는 위 행에서 실측했다. macOS·실기기는 아직 실측하지 않았다. |
 | 다른 AI에서 검토 | 다른 에이전트도 같은 기록 JSON을 읽을 수 있다. 여섯 검토 역할을 여러 AI에 나누는 것은 수동 절차이며 ITR이 자동 배정하지 않는다. |
 | PDF | 동봉 PDF는 실제 생성본이다. 새 PDF를 만들 때만 PyMuPDF가 추가로 필요하다. 브라우저용 인쇄 HTML도 제공한다. [리더 PDF 안내](docs/pdf-report.ko.md) |
-| GitHub Actions | push와 PR마다 Ubuntu·Windows·macOS × Python 3.9·3.12에서 프로젝트·진행·합성 회귀, 봉인 기록, 자체 검사 계획, 공식 배포 감사를 실행하고, Ubuntu에서 PDF·보고서·리플레이 검사를 따로 실행한다. 설정은 [ci.yml](.github/workflows/ci.yml)에 있다. |
+| GitHub Actions | push와 PR마다 Ubuntu·Windows·macOS에서 Python 3.12와 가장 오래된 지원판(Windows·macOS 3.9, Ubuntu 3.10)으로 프로젝트·진행·합성 회귀, 봉인 기록, 자체 검사 계획, 공식 배포 감사를 실행하고, Ubuntu에서 PDF·보고서·리플레이 검사를 따로 실행한다. 설정은 [ci.yml](.github/workflows/ci.yml)에 있다. |
 
 ```sh
 python3 -B qa/check_project.py

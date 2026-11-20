@@ -1,0 +1,11 @@
+{
+  "role": "wb_logic",
+  "check_ids": [
+    "wb-logic"
+  ],
+  "verdict": "passed",
+  "evidence_ids": [
+    "EV-wb-logic"
+  ],
+  "sealed_at": "2026-11-20T09:46:18.921759+09:00"
+}

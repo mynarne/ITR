@@ -1,0 +1,11 @@
+{
+  "role": "bb_context",
+  "check_ids": [
+    "bb-context"
+  ],
+  "verdict": "passed",
+  "evidence_ids": [
+    "EV-bb-context"
+  ],
+  "sealed_at": "2026-11-20T09:46:18.970085+09:00"
+}

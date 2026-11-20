@@ -1,0 +1,11 @@
+{
+  "role": "wb_config",
+  "check_ids": [
+    "wb-config"
+  ],
+  "verdict": "passed",
+  "evidence_ids": [
+    "EV-wb-config"
+  ],
+  "sealed_at": "2026-11-20T09:46:18.925149+09:00"
+}

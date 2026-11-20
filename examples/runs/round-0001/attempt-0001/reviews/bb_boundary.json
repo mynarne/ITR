@@ -1,0 +1,11 @@
+{
+  "role": "bb_boundary",
+  "check_ids": [
+    "bb-boundary"
+  ],
+  "verdict": "failed",
+  "evidence_ids": [
+    "EV-bb-boundary"
+  ],
+  "sealed_at": "2026-11-20T09:46:04.033548+09:00"
+}

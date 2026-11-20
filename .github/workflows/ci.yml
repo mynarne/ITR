@@ -1,0 +1,65 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.os }} · Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.9", "3.12"]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Project adapter regression
+        run: python -B qa/check_project.py
+      - name: Progress watcher regression
+        run: python -B qa/check_progress.py
+      - name: Synthetic regression
+        run: python -B tools/check_itr.py
+      - name: Sealed example records
+        run: |
+          for record in examples/runs/*/*/record.json; do python -B tools/itr.py verify "$record"; done
+          for record in examples/project-runs/*/*/record.json; do python -B tools/project.py verify "$record"; done
+      - name: ITR self-check plan
+        run: |
+          approval=$(python -B tools/project.py inspect --workspace . --plan examples/itr-selfcheck.json \
+            | python -B -c "import json, sys; print(json.loads(sys.stdin.buffer.read())['approval_sha256'])")
+          python -B tools/project.py run --workspace . --plan examples/itr-selfcheck.json --approve "$approval" \
+            --store "$RUNNER_TEMP/itr-self" --round 1 --require-pass
+          python -B tools/project.py verify "$RUNNER_TEMP/itr-self/round-0001/attempt-0001/record.json"
+      - name: Release audit
+        run: python -B qa/check_release.py --root .
+
+  reports:
+    name: reports · PDF, views and replay
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install PyMuPDF for the optional PDF checks
+        run: python -m pip install pymupdf
+      - name: Bundled report views and PDF
+        run: python -B qa/check_views.py examples/runs/round-0001/attempt-0001/record.json examples/preview --pdf
+      - name: Replay DOM test double
+        run: node qa/check_replay.cjs examples/preview/replay.html
+      - name: Reader PDF profiles
+        run: python -B qa/check_reader_pdf.py

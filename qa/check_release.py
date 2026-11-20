@@ -63,7 +63,7 @@ HISTORY_RC2 = {
 CORE = {*HISTORY_RC2, *HISTORY_RC1, *LICENSE_HASHES, *FONT_HASHES, *MASCOTS,
         "SKILL.md", "README.md", "README.ko.md", "README.en.md", "VERSION", LEGACY, "qa/check_release.py"}
 FILES = set("""
-.gitattributes .gitignore VERSION README.md README.ko.md README.en.md SKILL.md VERIFICATION.ko.md MANIFEST.sha256
+.github/workflows/ci.yml .gitattributes .gitignore VERSION README.md README.ko.md README.en.md SKILL.md VERIFICATION.ko.md MANIFEST.sha256
 docs/architecture.ko.md docs/assessment.ko.md docs/gates.ko.md docs/release.ko.md
 docs/verification-rc2.ko.md docs/verification-rc2-followup.ko.md docs/verification-rc3.ko.md docs/pdf-report.ko.md docs/pdf-editorial.ko.md
 docs/history-0.1/VERIFICATION.ko.md docs/history-0.1/MANIFEST.sha256

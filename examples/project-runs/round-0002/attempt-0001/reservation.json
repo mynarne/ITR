@@ -1,0 +1,21 @@
+{
+  "run_id": "itr-724c30b33c574659a5740afb075048f3",
+  "round": 2,
+  "attempt": 1,
+  "created_at": "2026-11-20T10:05:49.918736+09:00",
+  "previous": {
+    "run_id": "itr-beb81027f47a4e109bdbf2376f9faabf",
+    "round": 1,
+    "attempt": 1,
+    "type": "regression",
+    "reason": "동일 제품 리비전에서 재고 0 경계까지 검사를 확장",
+    "record_path": "round-0001/attempt-0001/record.json",
+    "sha256": "6da0409da8e063b707ca679f982cbda1769594cdbcd772145951366b92224213"
+  },
+  "project_scope": {
+    "product": "합성 재고 분류기",
+    "revision": "inventory-demo-1",
+    "files_sha256": "5f6958408fb176883e311a3888a1fa6d04f9988685391d42247a3c314ffdadb7"
+  },
+  "approval_sha256": "7588ef99f76bf780a2744080ac34a6a8a31da6e32243da6fc5aff5e8962263fc"
+}

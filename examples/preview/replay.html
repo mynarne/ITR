@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light"><title>ITR · 검증 리플레이</title>
+<style>
+:root{--ink:#182922;--dim:#52635a;--line:#cbd2c9;--paper:#f6f7f1;--white:#fdfef9;--green:#176047;--mint:#e3f0df;--red:#8d2a1c;--red-bg:#f9e5dd;--ochre:#7a5004;--ochre-bg:#f9efd3;--grey:#43514a;--mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;--sans:Inter,"Noto Sans KR","Noto Sans CJK KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.5 var(--sans);word-break:keep-all;overflow-wrap:anywhere}button,input{font:inherit}button,a,input{touch-action:manipulation}button{cursor:pointer}button:disabled{cursor:default;opacity:.47}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #146cbb;outline-offset:2px}button{color:inherit}.top{background:#19312a;color:#f6f8ec}.brandbar,main,footer{max-width:1520px;margin:auto;padding-inline:clamp(12px,3vw,52px)}.brandbar{height:55px;display:flex;align-items:center;gap:13px}.brand{font:900 italic 31px/.8 Arial,sans-serif;letter-spacing:-3px}.full-name{font:600 12px var(--mono);color:#c7d2c4;border-left:1px solid #61756b;padding-left:13px}.demo{margin-left:auto;display:flex;align-items:center;gap:7px;color:#dfefaa;font-weight:700;font-size:12px}.demo:before{content:"";border:1px solid #dbeda0;width:7px;height:7px;transform:rotate(45deg)}
+main{padding-bottom:23px}.hero{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;margin:28px 0 20px}.eyebrow{font:600 12px/1.5 var(--mono);color:var(--green);letter-spacing:.025em}h1{margin:3px 0 6px;font-size:clamp(31px,3vw,46px);line-height:1.16;letter-spacing:-.065em}h2,h3,h4,p{margin:0}h2{font-size:19px;letter-spacing:-.045em}h3{font-size:16px;letter-spacing:-.03em}.sub{color:var(--dim);font-size:13px}.scope{border-left:2px solid var(--green);padding:2px 0 2px 12px;min-width:180px}.scope div{color:var(--dim);font-size:11px}.scope strong{font-size:15px}.scope p{margin-top:3px}.mono,time{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.playback{padding:15px 18px 12px;border:1px solid #b9c5b9;background:#eef2e7;border-radius:5px}.controls,.track,.group,.space,.aux,.head,.status{display:flex;align-items:center}.controls{gap:8px;flex-wrap:wrap}.controls button,.aux button{min-height:36px;padding:5px 11px;border:1px solid #b6c3b7;background:var(--white);border-radius:4px;font-weight:650;font-size:13px}.controls button.primary{background:var(--green);border-color:var(--green);color:white;min-width:76px}.controls button:hover:not(:disabled),.aux button:hover:not(:disabled){filter:brightness(.94)}.controls label{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:13px;min-height:36px}.controls input[type=checkbox]{accent-color:var(--green);width:17px;height:17px}.cursor{font:600 12px var(--mono);color:var(--dim);white-space:nowrap}.track{gap:14px;margin-top:9px}.track input{min-width:35px;flex:1;height:20px;accent-color:var(--green);cursor:pointer}.track time{color:var(--dim);font-size:12px}.bodygrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(258px,26%);gap:15px;margin-top:18px;align-items:start}.panel{background:var(--white);border:1px solid var(--line);border-radius:5px;min-width:0;overflow:hidden}.head{gap:10px;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--line)}.head small{font-size:11px;color:var(--dim)}.aux{gap:7px}.aux button{padding:4px 8px;font-size:12px}.active-count{color:var(--green);font-weight:700;font-size:12px;white-space:nowrap}
+.scroller{overflow:auto;position:relative;overscroll-behavior-x:contain;scrollbar-color:#859589 #edf0e5}.graph{position:relative;min-width:100%;width:max-content;isolation:isolate}.flow{position:absolute;inset:0;pointer-events:none;z-index:2;overflow:visible}.row{display:grid;grid-template-columns:var(--cols);min-width:100%;border-bottom:1px solid #dee4da}.row:last-child{border-bottom:0}.row.stage-head{background:#eef2e9;min-height:34px}.stage,.lane-title{padding:7px 8px}.stage{font-size:11px;font-weight:750;color:#4e6154;text-align:center;border-left:1px solid #dce3d9}.lane-title{position:sticky;left:0;background:#f4f6ee;align-self:stretch;display:flex;flex-direction:column;justify-content:center;z-index:4;border-right:1px solid #cdd6ca}.lane-title small{font-size:9px;letter-spacing:.035em;color:var(--dim)}.lane-title b{font-size:12px}.stage-head .lane-title{font-size:11px;color:var(--dim);background:#eaf0e4}.stagecell{position:relative;min-height:46px;border-right:1px dashed #e0e5dc;padding:7px 9px;display:flex;flex-direction:column;justify-content:center;gap:7px}.stagecell:last-child{border:0}.card{position:relative;z-index:3;display:block;width:100%;min-height:45px;border:1px solid #b8c7b7;background:#f0f4eb;text-align:left;padding:5px 7px;border-radius:4px;color:#284435;font-weight:700;overflow:hidden;transition:box-shadow .2s}.card .status{gap:4px;font-size:10px;line-height:1.3;font-weight:700;margin-bottom:3px}.card .name{display:block;font-size:12px;line-height:1.35}.card .mark{font-family:var(--mono);font-size:11px}.card:hover{box-shadow:0 0 0 1px currentColor}.card[aria-pressed=true]{outline:2px solid #263a30;outline-offset:1px}.card[data-state=queued]{background:#f7f8f3;color:#626d64;border:1px dashed #9ba69a}.card[data-state=running]{color:#135139;background:#e1f1da;border:1px solid #37885a}.card[data-state=failed]{background:var(--red-bg);color:var(--red);border-color:#d39a87}.card[data-state=blocked]{background:var(--ochre-bg);color:var(--ochre);border-color:#c2a35b}.card[data-state=not_run]{background:#f2f3f0;color:#5b625d;border:1px dashed #9da69e}.playing.motion .card[data-state=running]{animation:breathe 1.9s ease-in-out infinite}.card[data-state=running]::after{content:"";position:absolute;right:4px;top:3px;width:4px;height:4px;border-radius:50%;background:#287448}.playing.motion .card[data-state=running]::after{animation:trace 1.9s ease-in-out infinite}.legend{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:9px 14px;border-top:1px solid var(--line);font-size:11px;color:var(--dim)}.legend i{font-style:normal;font-weight:800;margin-right:3px}.legend [data-key=failed]{color:var(--red)}.legend [data-key=blocked]{color:var(--ochre)}.legend [data-key=running]{color:var(--green)}@keyframes breathe{50%{box-shadow:0 0 0 2px #5dab7640}}@keyframes trace{0%,100%{right:4px}50%{right:calc(100% - 8px)}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+.inspect .head{background:#edf1e7}.inspect-body{padding:14px}.final-link button{margin-top:7px;border:1px solid #9cafa0;background:#f0f5e9;border-radius:3px;padding:6px 9px;color:var(--green);font-weight:700}.inspect h3{font-size:19px;line-height:1.35;margin:7px 0}.inspect .label{display:inline-block;font-size:11px;font-weight:700;border:1px solid currentColor;padding:2px 6px;border-radius:2px}.inspect [data-state=failed]{color:var(--red)}.inspect [data-state=blocked]{color:var(--ochre)}.inspect [data-state=passed],.inspect [data-state=running]{color:var(--green)}.meta-line{font-size:12px;color:var(--dim)}.section{border-top:1px solid var(--line);margin-top:12px;padding-top:10px}.section h4{font-size:12px;color:var(--dim);margin-bottom:4px}.section p{font-size:13px}.section p+p{margin-top:5px}.evidence{border-left:2px solid #a5b6a2;padding-left:8px;margin:9px 0}.evidence pre{white-space:pre-wrap;word-break:break-word;line-height:1.45;max-height:160px;overflow:auto;background:#edf1e8;color:#27382f;padding:6px;font:11px var(--mono)}.evidence img{width:100%;max-height:170px;object-fit:contain}.evidence code,.digest{font-family:var(--mono);font-size:10px;word-break:break-all}.summary{margin-top:15px}.summary-body{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(160px,1fr);gap:16px;padding:12px 15px}.table-scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:12px;white-space:nowrap}th,td{padding:5px;text-align:right;border-bottom:1px solid #e1e5dc}th{color:var(--dim);font-size:11px}th:first-child,td:first-child{text-align:left;white-space:normal}tbody tr:last-child td{border:0}.defect-metric{border-left:1px solid var(--line);padding-left:15px}.defect-metric b{font:650 36px/1.3 var(--mono);letter-spacing:-.055em}.defect-metric span{font-size:12px}.defect-metric p,.count-foot{font-size:11px;color:var(--dim)}.defect-metric p{margin-top:4px}.count-foot{padding:0 15px 12px}.archive{margin-top:15px;font-size:12px;color:var(--dim)}footer{padding-block:16px;border-top:1px solid var(--line);color:var(--dim);font-size:11px;display:flex;gap:12px;justify-content:space-between}.skip{position:absolute;left:-3000px}.skip:focus{left:5px;top:5px;z-index:20;background:white;padding:6px}.noscript{padding:20px;}
+@media(min-width:1550px){.card{min-height:51px}.stagecell{padding-block:9px}}@media(max-width:950px){.bodygrid{grid-template-columns:minmax(0,1fr) minmax(224px,27%)}.brandbar,main,footer{padding-inline:14px}.head{padding-inline:10px}.inspect-body{padding:11px}.stagecell{padding:7px}.summary-body{grid-template-columns:minmax(0,1fr) 130px}}@media(max-width:730px){.bodygrid{display:flex;flex-direction:column}.bodygrid>*,.left{width:100%}.scope{display:none}.hero{margin:19px 0 12px}.playback{padding:10px}.controls button,.aux button,.controls label{min-height:44px}.track{flex-wrap:wrap;column-gap:9px;row-gap:1px}.track time{display:block;width:100%;text-align:right;font-size:10px}.controls{gap:4px}.controls label{font-size:12px}.head h2{font-size:17px}.stagecell{padding:7px}.summary-body{grid-template-columns:minmax(0,1fr) 86px;gap:7px;padding-inline:8px}.defect-metric{padding-left:7px}.defect-metric b{font-size:27px}.legend{gap:5px 10px}.scope{min-width:0}.archive{margin-top:8px}footer{display:block}.inspect-body{padding:14px}}@media(max-width:390px){.active-count{display:none}.controls label{margin-left:2px}.summary-body{grid-template-columns:1fr}.defect-metric{border-left:0;border-top:1px solid var(--line);padding:4px 0}.defect-metric b{font-size:25px}.full-name{font-size:10px}}
+</style></head><body>
+<a class="skip" href="#controls">재생 조작으로 건너뛰기</a>
+<header class="top"><div class="brandbar"><b class="brand">ITR</b><span class="full-name" lang="en">Is This Real?</span><span class="demo">리플레이 데모</span></div></header>
+<main><div class="hero"><div><div class="eyebrow" id="run-meta"></div><h1>검증 리플레이</h1><p class="sub" id="project"></p></div><div class="scope"><div>발주자·사용자 승인 · 최종 기록</div><strong id="approval"></strong></div></div>
+<noscript><p class="noscript">리플레이를 탐색하려면 JavaScript를 켜세요. 같은 기록의 report.md와 print.html은 스크립트 없이 열립니다.</p></noscript>
+<section class="playback" id="controls" aria-label="이벤트 재생"><div class="controls">
+<button type="button" class="primary" id="play">▶ 재생</button><button type="button" id="step-back" aria-label="이전 이벤트">‹ 이전</button><button type="button" id="step-next" aria-label="다음 이벤트">다음 ›</button><button type="button" id="end">끝으로</button><label><input type="checkbox" id="reduce">모션 줄이기</label></div>
+<div class="track"><label class="cursor" for="seek" id="cursor">이벤트</label><input type="range" id="seek" min="0" step="1" value="0" aria-label="리플레이 이벤트 위치"><time id="clock"></time></div></section>
+<div class="bodygrid"><div class="left"><section class="panel" aria-labelledby="flow-heading"><div class="head"><h2 id="flow-heading">검증 흐름</h2><div class="aux"><span class="active-count" id="active-count"></span><button type="button" id="current">현재 작업으로</button></div></div>
+<div class="scroller" tabindex="0" role="region" aria-label="검토 역할과 단계별 흐름. 좁은 창에서는 좌우로 스크롤할 수 있습니다."><div class="graph" id="board"></div></div>
+<div class="legend"><span data-key="running"><i>●</i>실행 중</span><span><i>✓</i>통과</span><span data-key="failed"><i>×</i>실패</span><span data-key="blocked"><i>!</i>차단</span><span><i>○</i>대기</span><span><i>–</i>미실행</span></div></section>
+<section class="panel summary" aria-labelledby="summary-heading"><div class="head"><h2 id="summary-heading">단계별 판정</h2><small>현재 이벤트 기준</small></div><div class="summary-body"><div class="table-scroll"><table id="stage-counts"><thead><tr><th scope="col">단계</th><th scope="col">통과</th><th scope="col">실패</th><th scope="col">차단</th><th scope="col">미실행</th></tr></thead><tbody></tbody></table></div><div class="defect-metric"><div>고유 결함</div><b id="defect-total">0</b> <span id="defect-unit">건</span><p id="defect-note">동일 fingerprint 1건</p></div></div><p class="count-foot" id="count-note"></p></section></div>
+<aside class="panel inspect" aria-labelledby="detail-heading"><div class="head"><h2 id="detail-heading" tabindex="-1">검사 상세</h2><small id="detail-method"></small></div><div id="details" class="inspect-body"></div></aside></div>
+<p class="archive" id="archive"></p></main><footer><span id="created"></span><span class="digest" id="digest"></span></footer>
+<script id="source" type="application/json">{"record":{"run_id":"itr-fb61caf8278f4a2eb705aa02a9b8fd1e","round":1,"attempt":1,"created_at":"2026-11-20T09:46:03.919817+09:00","previous":null,"schema_version":"1.0","input":{"mode":"precision","product":"마을상점 영수증 · 합성 CLI","revision":"sha256:ed1c4234d066074ce37720bd540fbb1c1aecbbeeceb05e68325f7f39a054cede","baselines":[{"id":"G-TOTAL","kind":"goal","text":"고객에게 품목 금액과 배송비를 합한 원화 청구액을 표시한다.","version":"1.0"},{"id":"R-FREE","kind":"requirement","text":"품목 합계가 10,000원 이상이면 배송비는 0원, 미만이면 3,000원이다.","version":"1.0"},{"id":"R-CONTRACT","kind":"requirement","text":"영수증 JSON은 subtotal, shipping, total, currency 필드를 제공한다.","version":"1.0"},{"id":"R-OFFLINE","kind":"rule","text":"합성 결제기는 원화 단위를 사용하고 외부 동기화를 끈다.","version":"1.0"},{"id":"R-DEVICE","kind":"requirement","text":"선택된 실제 휴대 단말에서 현장 직원이 영수증을 읽을 수 있다.","version":"1.0"},{"id":"R-LEDGER","kind":"requirement","text":"별도 합성 장부가 제공된 회차에만 외부 장부 인계 시나리오를 검증한다.","version":"1.0"}],"capabilities":[{"id":"local_python","available":true},{"id":"source","available":true},{"id":"physical_device","available":false},{"id":"sandbox_ledger","available":false}],"checks":[{"id":"unit-subtotal","title":"품목 합계","stage":"unit","method":"execution","role":"runner","criteria":["G-TOTAL"],"pass_condition":"2×2,500원과 1×1,000원의 품목 합계가 6,000원이다.","requires":["local_python"],"depends_on":[],"selected":true},{"id":"bb-goal","title":"장바구니 결제","stage":"acceptance","method":"execution","role":"bb_goal","criteria":["G-TOTAL","R-FREE"],"pass_condition":"6,000원 상품 2개의 청구액이 12,000원이며 배송비가 0원이다.","requires":["local_python"],"depends_on":["system-receipt"],"selected":true},{"id":"bb-context","title":"소액 주문 영수증","stage":"system","method":"execution","role":"bb_context","criteria":["G-TOTAL","R-CONTRACT"],"pass_condition":"4,000원 주문에서 배송비를 포함한 7,000원과 KRW가 출력된다.","requires":["local_python"],"depends_on":["integration-basket"],"selected":true},{"id":"bb-boundary","title":"무료 배송 경계","stage":"system","method":"execution","role":"bb_boundary","criteria":["G-TOTAL","R-FREE"],"pass_condition":"9,999원·10,000원·10,001원의 배송비가 순서대로 3,000·0·0원이다.","requires":["local_python"],"depends_on":["integration-basket"],"selected":true},{"id":"wb-logic","title":"경계 비교식","stage":"unit","method":"inspection","role":"wb_logic","criteria":["R-FREE"],"pass_condition":"배송비 분기의 AST가 subtotal >= 10000이고 참/거짓 금액이 0/3000이다.","requires":["source"],"depends_on":["unit-subtotal"],"selected":true},{"id":"wb-contract","title":"영수증 출력 계약","stage":"integration","method":"inspection","role":"wb_contract","criteria":["R-CONTRACT"],"pass_condition":"receipt가 반환하는 딕셔너리 키가 규정된 네 키와 일치한다.","requires":["source"],"depends_on":["unit-subtotal"],"selected":true},{"id":"wb-config","title":"오프라인 설정","stage":"system","method":"inspection","role":"wb_config","criteria":["R-OFFLINE"],"pass_condition":"설정 리터럴에서 통화 KRW 및 external_sync=false를 확인한다.","requires":["source"],"depends_on":["unit-subtotal"],"selected":true},{"id":"integration-basket","title":"품목·배송비 결합","stage":"integration","method":"execution","role":"runner","criteria":["G-TOTAL","R-CONTRACT"],"pass_condition":"품목 합계 5,500원에 배송비 3,000원을 더해 8,500원의 영수증을 만든다.","requires":["local_python"],"depends_on":["unit-subtotal","wb-contract"],"selected":true},{"id":"system-receipt","title":"영수증 CLI 왕복","stage":"system","method":"execution","role":"runner","criteria":["G-TOTAL","R-CONTRACT"],"pass_condition":"12,500원 입력이 배송비 0원 및 총액 12,500원의 JSON으로 출력된다.","requires":["local_python"],"depends_on":["integration-basket","wb-contract"],"selected":true},{"id":"system-device","title":"실기기 열람","stage":"system","method":"execution","role":"runner","criteria":["R-DEVICE"],"pass_condition":"실기기에서 직원이 추가 확대 없이 청구 총액을 정확히 읽는다.","requires":["physical_device"],"depends_on":["integration-basket"],"selected":true},{"id":"link-ledger","title":"장부 인계","stage":"intersystem","method":"execution","role":"runner","criteria":["R-LEDGER"],"pass_condition":"영수증과 장부 항목의 금액·통화가 일치한다.","requires":["sandbox_ledger"],"depends_on":["integration-basket"],"selected":false}]},"events":[{"seq":1,"at":"2026-11-20T09:46:03.924384+09:00","check_id":"unit-subtotal","state":"queued","message":"고정된 검사 계획에 등록."},{"seq":2,"at":"2026-11-20T09:46:03.925037+09:00","check_id":"bb-goal","state":"queued","message":"고정된 검사 계획에 등록."},{"seq":3,"at":"2026-11-20T09:46:03.925536+09:00","check_id":"bb-context","state":"queued","message":"고정된 검사 계획에 등록."},{"seq":4,"at":"2026-11-20T09:46:03.927177+09:00","check_id":"bb-boundary","state":"queued","message":"고정된 검사 계획에 등록."},{"seq":5,"at":"2026-11-20T09:46:03.927801+09:00","check_id":"wb-logic","state":"queued","message":"고정된 검사 계획에 등록."},{"seq":6,"at":"2026-11-20T09:46:03.928270+09:00","check_id":"wb-contract","state":"queued","message":"고정된 검사 계획에 등록."},{"seq":7,"at":"2026-11-20T09:46:03.929054+09:00","check_id":"wb-config","state":"queued","message":"고정된 검사 계획에 등록."},{"seq":8,"at":"2026-11-20T09:46:03.929890+09:00","check_id":"integration-basket","state":"queued","message":"고정된 검사 계획에 등록."},{"seq":9,"at":"2026-11-20T09:46:03.930641+09:00","check_id":"system-receipt","state":"queued","message":"고정된 검사 계획에 등록."},{"seq":10,"at":"2026-11-20T09:46:03.931201+09:00","check_id":"system-device","state":"queued","message":"고정된 검사 계획에 등록."},{"seq":11,"at":"2026-11-20T09:46:03.931869+09:00","check_id":"link-ledger","state":"queued","message":"고정된 검사 계획에 등록."},{"seq":12,"at":"2026-11-20T09:46:03.932710+09:00","check_id":"unit-subtotal","state":"running","message":"고정된 입력으로 검사 시작."},{"seq":13,"at":"2026-11-20T09:46:03.934662+09:00","check_id":"unit-subtotal","state":"passed","message":"관찰값이 고정된 통과 조건과 일치."},{"seq":14,"at":"2026-11-20T09:46:03.935530+09:00","check_id":"wb-logic","state":"running","message":"고정된 입력으로 검사 시작."},{"seq":15,"at":"2026-11-20T09:46:03.936642+09:00","check_id":"wb-contract","state":"running","message":"고정된 입력으로 검사 시작."},{"seq":16,"at":"2026-11-20T09:46:03.937462+09:00","check_id":"wb-config","state":"running","message":"고정된 입력으로 검사 시작."},{"seq":17,"at":"2026-11-20T09:46:03.939220+09:00","check_id":"wb-logic","state":"failed","message":"shipping의 무료 배송 비교식에서 경계값이 제외됨."},{"seq":18,"at":"2026-11-20T09:46:03.940837+09:00","check_id":"wb-contract","state":"passed","message":"관찰값이 고정된 통과 조건과 일치."},{"seq":19,"at":"2026-11-20T09:46:03.941722+09:00","check_id":"wb-config","state":"passed","message":"관찰값이 고정된 통과 조건과 일치."},{"seq":20,"at":"2026-11-20T09:46:03.942442+09:00","check_id":"integration-basket","state":"running","message":"고정된 입력으로 검사 시작."},{"seq":21,"at":"2026-11-20T09:46:03.966778+09:00","check_id":"integration-basket","state":"passed","message":"관찰값이 고정된 통과 조건과 일치."},{"seq":22,"at":"2026-11-20T09:46:03.967667+09:00","check_id":"bb-context","state":"running","message":"고정된 입력으로 검사 시작."},{"seq":23,"at":"2026-11-20T09:46:03.968859+09:00","check_id":"bb-boundary","state":"running","message":"고정된 입력으로 검사 시작."},{"seq":24,"at":"2026-11-20T09:46:03.969891+09:00","check_id":"system-receipt","state":"running","message":"고정된 입력으로 검사 시작."},{"seq":25,"at":"2026-11-20T09:46:03.970726+09:00","check_id":"system-device","state":"blocked","message":"필수 실행 능력 미제공 · physical_device"},{"seq":26,"at":"2026-11-20T09:46:03.971713+09:00","check_id":"link-ledger","state":"not_run","message":"선택적 장부 연동은 이번 범위에서 제외."},{"seq":27,"at":"2026-11-20T09:46:03.988380+09:00","check_id":"bb-context","state":"passed","message":"관찰값이 고정된 통과 조건과 일치."},{"seq":28,"at":"2026-11-20T09:46:04.003698+09:00","check_id":"system-receipt","state":"passed","message":"관찰값이 고정된 통과 조건과 일치."},{"seq":29,"at":"2026-11-20T09:46:04.034123+09:00","check_id":"bb-boundary","state":"failed","message":"10,000원 주문에 배송비 3,000원이 청구됨."},{"seq":30,"at":"2026-11-20T09:46:04.034853+09:00","check_id":"bb-goal","state":"running","message":"고정된 입력으로 검사 시작."},{"seq":31,"at":"2026-11-20T09:46:04.053100+09:00","check_id":"bb-goal","state":"passed","message":"관찰값이 고정된 통과 조건과 일치."}],"results":[{"check_id":"unit-subtotal","status":"passed","detail":"관찰값이 고정된 통과 조건과 일치.","evidence_ids":["EV-unit-subtotal"]},{"check_id":"bb-goal","status":"passed","detail":"관찰값이 고정된 통과 조건과 일치.","evidence_ids":["EV-bb-goal"]},{"check_id":"bb-context","status":"passed","detail":"관찰값이 고정된 통과 조건과 일치.","evidence_ids":["EV-bb-context"]},{"check_id":"bb-boundary","status":"failed","detail":"10,000원 주문에 배송비 3,000원이 청구됨.","evidence_ids":["EV-bb-boundary"]},{"check_id":"wb-logic","status":"failed","detail":"shipping의 무료 배송 비교식에서 경계값이 제외됨.","evidence_ids":["EV-wb-logic"]},{"check_id":"wb-contract","status":"passed","detail":"관찰값이 고정된 통과 조건과 일치.","evidence_ids":["EV-wb-contract"]},{"check_id":"wb-config","status":"passed","detail":"관찰값이 고정된 통과 조건과 일치.","evidence_ids":["EV-wb-config"]},{"check_id":"integration-basket","status":"passed","detail":"관찰값이 고정된 통과 조건과 일치.","evidence_ids":["EV-integration-basket"]},{"check_id":"system-receipt","status":"passed","detail":"관찰값이 고정된 통과 조건과 일치.","evidence_ids":["EV-system-receipt"]},{"check_id":"system-device","status":"blocked","detail":"필수 실행 능력 미제공 · physical_device","evidence_ids":[]},{"check_id":"link-ledger","status":"not_run","detail":"선택적 장부 연동은 이번 범위에서 제외.","evidence_ids":[]}],"evidence":[{"id":"EV-unit-subtotal","check_id":"unit-subtotal","kind":"log","path":"evidence/unit-subtotal.json","sha256":"f1e001f99aaa52a39d49b00a83a8041d1340147c0f4b58244abc2423d5695875"},{"id":"EV-bb-goal","check_id":"bb-goal","kind":"log","path":"evidence/bb-goal.json","sha256":"f6296756f8b6581d2626ab6335267edf7524ea133e7cc16c7b5ca39d25a47bf5"},{"id":"EV-bb-context","check_id":"bb-context","kind":"log","path":"evidence/bb-context.json","sha256":"6298c89bcbd033560e5c220e683c675c487ec379988b00f0f2c8cac60e759b25"},{"id":"EV-bb-boundary","check_id":"bb-boundary","kind":"log","path":"evidence/bb-boundary.json","sha256":"28399ba1b821198b20bfdcb27a4bf881789f275f23a28b98fca7dcd447548c2a"},{"id":"EV-wb-logic","check_id":"wb-logic","kind":"review","path":"evidence/wb-logic.json","sha256":"94698fe35dac1fa713be815287106317a1065e9e5be58fa4e26d4417fafc1c03"},{"id":"EV-wb-contract","check_id":"wb-contract","kind":"review","path":"evidence/wb-contract.json","sha256":"b3f6ccab1ec6135794990610a33aa17c60521fba702bb56337f284f48799bf8e"},{"id":"EV-wb-config","check_id":"wb-config","kind":"review","path":"evidence/wb-config.json","sha256":"b5050751d48359475abb550acb58c306356ff1020bd830fb459e10fd9ff9e97c"},{"id":"EV-integration-basket","check_id":"integration-basket","kind":"log","path":"evidence/integration-basket.json","sha256":"495649d9a1848faa82e7d6f1fde367f23e700759b810a5406ecffd7e38a45c17"},{"id":"EV-system-receipt","check_id":"system-receipt","kind":"log","path":"evidence/system-receipt.json","sha256":"d952b49882b0f5cbc52de4cc0b92f2ef17f9e461db409bd787eecbef2835e75f"}],"defects":[{"id":"D-001","fingerprint":"receipt.shipping.threshold.inclusive","check_ids":["bb-boundary","wb-logic"],"baseline_ids":["G-TOTAL","R-FREE"],"evidence_ids":["EV-bb-boundary","EV-wb-logic"],"observed":"무료 배송 기준인 10,000원에서 경계 조건이 어긋난다.","cause_confirmed":"shipping 조건식이 subtotal > 10000이어서 같은 금액을 제외한다.","hypothesis":null,"minimal_fix":"무료 배송 비교식에 같은 금액을 포함한다.","next_regression":"bb-boundary 및 wb-logic으로 9,999·10,000·10,001원 사례와 소스 조건을 재검사한다."}],"reviews":[{"role":"bb_goal","check_ids":["bb-goal"],"verdict":"passed","evidence_ids":["EV-bb-goal"],"sealed_at":"2026-11-20T09:46:04.052415+09:00"},{"role":"bb_context","check_ids":["bb-context"],"verdict":"passed","evidence_ids":["EV-bb-context"],"sealed_at":"2026-11-20T09:46:03.987513+09:00"},{"role":"bb_boundary","check_ids":["bb-boundary"],"verdict":"failed","evidence_ids":["EV-bb-boundary"],"sealed_at":"2026-11-20T09:46:04.033548+09:00"},{"role":"wb_logic","check_ids":["wb-logic"],"verdict":"failed","evidence_ids":["EV-wb-logic"],"sealed_at":"2026-11-20T09:46:03.937581+09:00"},{"role":"wb_contract","check_ids":["wb-contract"],"verdict":"passed","evidence_ids":["EV-wb-contract"],"sealed_at":"2026-11-20T09:46:03.939124+09:00"},{"role":"wb_config","check_ids":["wb-config"],"verdict":"passed","evidence_ids":["EV-wb-config"],"sealed_at":"2026-11-20T09:46:03.940776+09:00"}],"approval":{"status":"not_requested","actor":null,"at":null},"decision":{"status":"failed","reason":"선택한 검사 10건 중 통과 7, 실패 2, 차단 1, 미실행 0. 우선순위는 실패 → 차단 → 미실행 → 통과."},"extensions":{"adapter":"itr.local.synthetic.v1","fixture":"broken","review_model":"isolated-input deterministic functions; six roles simulated locally","scope_reason":"전체 합성 계획과 현장 실기기 능력 확인","standards":[{"edition":"ISO/IEC 25010:2023","applied":true,"reason":"영수증 기능 정확성을 입력·기대 금액으로 관찰한다."},{"edition":"ISO/IEC 25019:2023","applied":true,"reason":"소액 구매자 및 현장 직원의 과업을 명시한다. 실기기 사용자 경험은 미확인이다."},{"edition":"ISO/IEC/IEEE 29119-1:2022","applied":true,"reason":"검사 수준과 결과 상태의 뜻을 팀이 공통으로 사용한다."},{"edition":"ISO/IEC/IEEE 29119-2:2021","applied":true,"reason":"계획·환경 능력·실행·판정을 별도로 기록한다."},{"edition":"ISO/IEC/IEEE 29119-3:2021","applied":true,"reason":"각 검사 계획에 결과, 증거, 결함 식별자를 연결한다."},{"edition":"ISO/IEC/IEEE 29119-4:2021","applied":true,"reason":"무료 배송 경계 양옆의 9,999·10,000·10,001원을 조사한다."},{"edition":"ISO/IEC 20246:2017","applied":true,"reason":"배송 비교식, 계약, 설정을 소스 산출물 검토로 구분한다."},{"edition":"ISO/IEC 25040:2024","applied":false,"reason":"이번 단일 합성 제품 회차는 고정 목표·측정값·판정만으로 평가 범위를 기술한다."}],"regression":[]}},"digest":"51e474a90a6d5c7aa28899cbf2c4812e63ac5c08d33004c90add262e0451b742","previews":{"EV-unit-subtotal":{"text":"{\n  \"check_id\": \"unit-subtotal\",\n  \"condition\": \"2×2,500원과 1×1,000원의 품목 합계가 6,000원이다.\",\n  \"trace\": {\n    \"items\": [\n      [\n        2,\n        2500\n      ],\n      [\n        1,\n        1000\n      ]\n    ]\n  },\n  \"expected\": 6000,\n  \"observed\": 6000,\n  \"status\": \"passed\"\n}\n","status":"해시 대조 완료"},"EV-bb-goal":{"text":"{\n  \"check_id\": \"bb-goal\",\n  \"condition\": \"6,000원 상품 2개의 청구액이 12,000원이며 배송비가 0원이다.\",\n  \"trace\": {\n    \"items\": [\n      [\n        2,\n        6000\n      ]\n    ]\n  },\n  \"expected\": {\n    \"subtotal\": 12000,\n    \"shipping\": 0,\n    \"total\": 12000,\n    \"currency\": \"KRW\"\n  },\n  \"observed\": {\n    \"subtotal\": 12000,\n    \"shipping\": 0,\n    \"total\": 12000,\n    \"currency\": \"KRW\"\n  },\n  \"status\": \"passed\"\n}\n","status":"해시 대조 완료"},"EV-bb-context":{"text":"{\n  \"check_id\": \"bb-context\",\n  \"condition\": \"4,000원 주문에서 배송비를 포함한 7,000원과 KRW가 출력된다.\",\n  \"trace\": {\n    \"items\": [\n      [\n        1,\n        4000\n      ]\n    ]\n  },\n  \"expected\": {\n    \"subtotal\": 4000,\n    \"shipping\": 3000,\n    \"total\": 7000,\n    \"currency\": \"KRW\"\n  },\n  \"observed\": {\n    \"subtotal\": 4000,\n    \"shipping\": 3000,\n    \"total\": 7000,\n    \"currency\": \"KRW\"\n  },\n  \"status\": \"passed\"\n}\n","status":"해시 대조 완료"},"EV-bb-boundary":{"text":"{\n  \"check_id\": \"bb-boundary\",\n  \"condition\": \"9,999원·10,000원·10,001원의 배송비가 순서대로 3,000·0·0원이다.\",\n  \"trace\": {\n    \"subtotals\": [\n      9999,\n      10000,\n      10001\n    ],\n    \"receipts\": [\n      {\n        \"subtotal\": 9999,\n        \"shipping\": 3000,\n        \"total\": 12999,\n        \"currency\": \"KRW\"\n      },\n      {\n        \"subtotal\": 10000,\n        \"shipping\": 3000,\n        \"total\": 13000,\n        \"currency\": \"KRW\"\n      },\n      {\n        \"subtotal\": 10001,\n        \"shipping\": 0,\n        \"total\": 10001,\n        \"currency\": \"KRW\"\n      }\n    ]\n  },\n  \"expected\": [\n    3000,\n    0,\n    0\n  ],\n  \"observed\": [\n    3000,\n    3000,\n    0\n  ],\n  \"status\": \"failed\"\n}\n","status":"해시 대조 완료"},"EV-wb-logic":{"text":"{\n  \"check_id\": \"wb-logic\",\n  \"condition\": \"배송비 분기의 AST가 subtotal >= 10000이고 참/거짓 금액이 0/3000이다.\",\n  \"trace\": {\n    \"source\": \"subject.py\",\n    \"method\": \"Python AST\"\n  },\n  \"expected\": \"IfExp(test=Compare(left=Name(id='subtotal', ctx=Load()), ops=[GtE()], comparators=[Constant(value=10000)]), body=Constant(value=0), orelse=Constant(value=3000))\",\n  \"observed\": \"IfExp(test=Compare(left=Name(id='subtotal', ctx=Load()), ops=[Gt()], comparators=[Constant(value=10000)]), body=Constant(value=0), orelse=Constant(value=3000))\",\n  \"status\": \"failed\"\n}\n","status":"해시 대조 완료"},"EV-wb-contract":{"text":"{\n  \"check_id\": \"wb-contract\",\n  \"condition\": \"receipt가 반환하는 딕셔너리 키가 규정된 네 키와 일치한다.\",\n  \"trace\": {\n    \"source\": \"subject.py\",\n    \"method\": \"Python AST\"\n  },\n  \"expected\": [\n    \"currency\",\n    \"shipping\",\n    \"subtotal\",\n    \"total\"\n  ],\n  \"observed\": [\n    \"currency\",\n    \"shipping\",\n    \"subtotal\",\n    \"total\"\n  ],\n  \"status\": \"passed\"\n}\n","status":"해시 대조 완료"},"EV-wb-config":{"text":"{\n  \"check_id\": \"wb-config\",\n  \"condition\": \"설정 리터럴에서 통화 KRW 및 external_sync=false를 확인한다.\",\n  \"trace\": {\n    \"source\": \"subject.py\",\n    \"method\": \"Python AST\"\n  },\n  \"expected\": {\n    \"currency\": \"KRW\",\n    \"external_sync\": false\n  },\n  \"observed\": {\n    \"currency\": \"KRW\",\n    \"external_sync\": false\n  },\n  \"status\": \"passed\"\n}\n","status":"해시 대조 완료"},"EV-integration-basket":{"text":"{\n  \"check_id\": \"integration-basket\",\n  \"condition\": \"품목 합계 5,500원에 배송비 3,000원을 더해 8,500원의 영수증을 만든다.\",\n  \"trace\": {\n    \"items\": [\n      [\n        1,\n        2500\n      ],\n      [\n        2,\n        1500\n      ]\n    ]\n  },\n  \"expected\": {\n    \"subtotal\": 5500,\n    \"shipping\": 3000,\n    \"total\": 8500,\n    \"currency\": \"KRW\"\n  },\n  \"observed\": {\n    \"subtotal\": 5500,\n    \"shipping\": 3000,\n    \"total\": 8500,\n    \"currency\": \"KRW\"\n  },\n  \"status\": \"passed\"\n}\n","status":"해시 대조 완료"},"EV-system-receipt":{"text":"{\n  \"check_id\": \"system-receipt\",\n  \"condition\": \"12,500원 입력이 배송비 0원 및 총액 12,500원의 JSON으로 출력된다.\",\n  \"trace\": {\n    \"items\": [\n      [\n        1,\n        12500\n      ]\n    ]\n  },\n  \"expected\": {\n    \"subtotal\": 12500,\n    \"shipping\": 0,\n    \"total\": 12500,\n    \"currency\": \"KRW\"\n  },\n  \"observed\": {\n    \"subtotal\": 12500,\n    \"shipping\": 0,\n    \"total\": 12500,\n    \"currency\": \"KRW\"\n  },\n  \"status\": \"passed\"\n}\n","status":"해시 대조 완료"}}}</script>
+<script>
+"use strict";
+const data=JSON.parse(document.getElementById("source").textContent);
+const r=data.record, inp=r.input, events=r.events, checks=inp.checks;
+const byId=id=>document.getElementById(id);
+const labels={queued:"대기",running:"실행 중",passed:"통과",failed:"실패",blocked:"차단",not_run:"미실행"};
+const symbols={queued:"○",running:"●",passed:"✓",failed:"×",blocked:"!",not_run:"–"};
+const stages={unit:"단위",integration:"통합",system:"시스템",intersystem:"시스템 간 통합",acceptance:"인수 시나리오"};
+const roles={bb_goal:"목표 충족",bb_context:"사용 맥락",bb_boundary:"경계 조건",wb_logic:"내부 로직",wb_contract:"모듈 계약",wb_config:"구성·설정",runner:"실행기"};
+const kinds={goal:"제품 목표",rule:"스킬 규칙",requirement:"프로젝트 요구사항"};
+const methods={inspection:"인스펙션",execution:"실행 테스트"};
+const approvalLabels={not_requested:"요청 전",pending:"승인 대기",approved:"승인",rejected:"반려"};
+const phase=Object.keys(stages).filter(s=>checks.some(c=>c.stage===s));
+const lanes=Object.keys(roles).filter(k=>checks.some(c=>c.role===k));
+const cards=new Map(), states=new Map(), edges=[];
+const terminal=["passed","failed","blocked","not_run"];
+const dateFormat=new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"});
+const kst=s=>dateFormat.format(new Date(s))+" KST";
+const n=(tag,cls,txt)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x};
+const svgNS="http://www.w3.org/2000/svg";
+const sn=(tag,attrs)=>{const x=document.createElementNS(svgNS,tag);for(const [key,val] of Object.entries(attrs))x.setAttribute(key,val);return x};
+const board=byId("board"), seek=byId("seek"), reduce=byId("reduce");
+let pos=0, selected=null, timer=null, currentIndex=0;
+const mq=matchMedia("(prefers-reduced-motion: reduce)");reduce.checked=mq.matches;
+const cells=new Map(), rows=new Map();
+byId("run-meta").textContent=r.round+"차 / 시도 "+r.attempt+"　·　"+(inp.mode==="delta"?"일상 변경분":"정밀")+" 모드";
+byId("project").textContent=inp.product+"　/　"+inp.revision;
+byId("approval").textContent=approvalLabels[r.approval.status];
+byId("created").textContent="기록 생성　"+kst(r.created_at);
+byId("digest").textContent="SHA-256　"+data.digest;
+byId("archive").textContent=r.run_id+"　·　발주자·사용자 승인 "+approvalLabels[r.approval.status]+(r.previous?"　·　이전 기록 "+r.previous.run_id+" / "+r.previous.reason:"");
+seek.max=String(events.length);
+
+const goDetail=n("a",null,"선택한 검사 상세 ↓");goDetail.href="#detail-heading";goDetail.style.cssText="color:var(--green);font-weight:700;margin-left:auto";
+document.querySelector(".legend").append(goDetail);
+function makeBoard(){
+  const widths="102px repeat("+Math.max(1,phase.length)+", minmax(126px, 1fr))";
+  board.style.setProperty("--cols",widths);
+  board.style.width="100%";board.style.minWidth=(102+126*Math.max(1,phase.length))+"px";
+  const head=n("div","row stage-head");
+  head.append(n("div","lane-title","검토 역할 / 단계"));
+  phase.forEach(k=>head.append(n("div","stage",stages[k])));
+  board.append(head);
+  for(const role of lanes){
+    const row=n("div","row");const title=n("div","lane-title");
+    title.append(n("small",null,role.startsWith("bb_")?"블랙박스":role.startsWith("wb_")?"화이트박스":"실행"),n("b",null,roles[role]));row.append(title);
+    for(const stage of phase){
+      const cell=n("div","stagecell");row.append(cell);
+      cells.set(role+"/"+stage,cell);
+    }
+    board.append(row);
+  }
+  for(const c of checks){
+    const card=n("button","card");card.type="button";card.dataset.check=c.id;
+    const state=n("span","status");const mark=n("span","mark");mark.setAttribute("aria-hidden","true");
+    state.append(mark,n("span"));card.append(state,n("span","name",c.title));
+    card.addEventListener("click",()=>{selected=c.id;update();});
+    cells.get(c.role+"/"+c.stage).append(card);cards.set(c.id,card);
+  }
+  const svg=sn("svg",{class:"flow","aria-hidden":"true"});board.append(svg);
+  const defs=sn("defs",{}),marker=sn("marker",{id:"arrow",viewBox:"0 0 6 6",refX:5,refY:3,markerWidth:4,markerHeight:4,orient:"auto"});
+  marker.append(sn("path",{d:"M0,0 L6,3 L0,6Z",fill:"#829386"}));defs.append(marker);svg.append(defs);
+  for(const c of checks){
+    for(const dep of c.depends_on||[]){
+      if(!cards.has(dep))continue;
+      const path=sn("path",{fill:"none","stroke-width":"1.4","marker-end":"url(#arrow)"});
+      svg.append(path);edges.push({from:dep,to:c.id,path});
+    }
+  }
+  const table=byId("stage-counts").querySelector("tbody");
+  for(const st of phase){
+    const tr=n("tr");tr.dataset.stage=st;const th=n("th",null,stages[st]);th.scope="row";tr.append(th);
+    terminal.forEach(s=>{const td=n("td",null,"0");td.dataset.status=s;tr.append(td)});table.append(tr);rows.set(st,tr);
+  }
+  const draw=()=>requestAnimationFrame(layoutEdges);
+  if("ResizeObserver" in window)new ResizeObserver(draw).observe(board);
+  window.addEventListener("resize",draw);if(document.fonts)document.fonts.ready.then(draw);draw();
+}
+function layoutEdges(){
+  const base=board.getBoundingClientRect(),svg=board.querySelector(".flow");
+  svg.setAttribute("width",base.width);svg.setAttribute("height",base.height);
+  for(const e of edges){
+    const a=cards.get(e.from).getBoundingClientRect(),b=cards.get(e.to).getBoundingClientRect();
+    const y1=a.top+a.height/2-base.top,y2=b.top+b.height/2-base.top;
+    let x1,x2,d;
+    if(b.left>a.left+10){
+      x1=a.right-base.left;x2=b.left-base.left-2;
+      const mid=(x1+x2)/2;
+      d="M "+x1+" "+y1+" H "+mid+" V "+y2+" H "+x2;
+    }else{
+      x1=a.right-base.left;x2=b.right-base.left+2;
+      const turn=Math.min(base.width-1,Math.max(x1,x2)+5);
+      d="M "+x1+" "+y1+" H "+turn+" V "+y2+" H "+x2;
+    }
+    e.path.setAttribute("d",d);
+  }
+}
+function section(box,label,lines){
+  const wrap=n("section","section");wrap.append(n("h4",null,label));
+  for(const text of lines)wrap.append(n("p",null,text));
+  box.append(wrap);return wrap;
+}
+function inspect(){
+  const box=byId("details");box.replaceChildren();
+  const c=checks.find(v=>v.id===selected);
+  byId("detail-method").textContent=c?methods[c.method]:"";
+  if(!c){box.append(n("p",null,"검사 카드를 선택하세요."));return}
+  const st=states.get(c.id),closed=terminal.includes(st);
+  const badge=n("span","label",symbols[st]+" "+labels[st]);badge.dataset.state=st;
+  box.append(badge,n("h3",null,c.title),n("p","meta-line",c.id+"　·　"+stages[c.stage]+" / "+roles[c.role]));
+  const result=closed?r.results.find(x=>x.check_id===c.id):null;
+  const last=events.slice(0,pos).reverse().find(e=>e.check_id===c.id);
+  if(result||last)section(box,"관찰",[result?result.detail:last.message]);
+  const merged=pos===events.length;
+  const defects=st==="failed"&&merged?r.defects.filter(d=>d.check_ids.includes(c.id)):[];
+  const goalIds=Array.from(new Set(defects.flatMap(d=>d.baseline_ids)));
+  const criteria=(ids)=>ids.map(id=>{const b=inp.baselines.find(v=>v.id===id);return b?kinds[b.kind]+" "+b.id+" · "+b.version+"　"+b.text:id});
+  section(box,st==="failed"?"깨진 목표·기준":"검사 기준",criteria(goalIds.length?goalIds:c.criteria));
+  section(box,"통과 조건",[c.pass_condition]);
+  if(c.requires.length)section(box,"필요 능력",c.requires.map(k=>{const cap=inp.capabilities.find(v=>v.id===k);return k+" · "+(cap?.available?"가용":"미지원")}));
+  const evidence=Array.from(new Set([...(result?.evidence_ids||[]),...defects.flatMap(d=>d.evidence_ids)]));
+  if(evidence.length){
+    const area=section(box,"로그·캡처",[]);
+    for(const id of evidence){
+      const evidenceItem=r.evidence.find(v=>v.id===id);if(!evidenceItem)continue;
+      const item=n("div","evidence"),p=data.previews[id]||{};
+      item.append(n("b",null,id+" · "+evidenceItem.kind),n("p","meta-line",evidenceItem.path+" · "+(p.status||"미리보기 없음")));
+      if(p.text)item.append(n("pre",null,p.text));
+      if(p.image){const im=n("img");im.src=p.image;im.alt=id+" 검증 캡처";item.append(im)}
+      const hash=n("details"),caption=n("summary",null,"SHA-256 보기");hash.append(caption,n("code",null,evidenceItem.sha256));item.append(hash);area.append(item);
+    }
+  }
+  if(st==="failed"&&!merged){
+    const area=section(box,"결함 통합",["역할별 첫 판정이 끝난 뒤 원인과 회귀 검사가 연결됩니다."]);
+    const button=n("button",null,"최종 분석 보기");button.type="button";button.id="show-final";button.addEventListener("click",()=>go(events.length));area.classList.add("final-link");area.append(button);
+  }
+  for(const d of defects){
+    section(box,"결함 "+d.id,[d.observed]);
+    section(box,"확인된 원인",[d.cause_confirmed||"미확인"]);
+    section(box,"가설",[d.hypothesis||"기록 없음"]);
+    section(box,"최소 수정 방향",[d.minimal_fix]);
+    section(box,"다음 회귀 검사",[d.next_regression]);
+  }
+}
+function update(){
+  states.clear();checks.forEach(c=>states.set(c.id,"queued"));
+  for(let i=0;i<pos;i++)states.set(events[i].check_id,events[i].state);
+  const active=[],counts={};phase.forEach(st=>counts[st]=Object.fromEntries(terminal.map(s=>[s,0])));
+  for(const c of checks){
+    const s=states.get(c.id),card=cards.get(c.id);
+    card.dataset.state=s;card.setAttribute("aria-pressed",String(c.id===selected));
+    card.setAttribute("aria-label",c.title+" · "+labels[s]+" · "+methods[c.method]+" · 상세");
+    card.firstChild.firstChild.textContent=symbols[s];card.firstChild.lastChild.textContent=labels[s];
+    if(s==="running")active.push(c.id);
+    if(terminal.includes(s))counts[c.stage][s]++;
+  }
+  for(const e of edges){
+    const waiting=states.get(e.to)==="queued"||states.get(e.from)==="queued";
+    const activeEdge=states.get(e.to)==="running";
+    e.path.setAttribute("stroke",activeEdge?"#518768":waiting?"#aab4aa":"#829386");
+    e.path.setAttribute("stroke-dasharray",waiting?"3 3":"none");
+  }
+  for(const st of phase)rows.get(st).querySelectorAll("td").forEach(td=>td.textContent=counts[st][td.dataset.status]);
+  const merged=pos===events.length;
+  byId("defect-total").textContent=merged?new Set(r.defects.map(d=>d.fingerprint)).size:"—";
+  byId("defect-unit").textContent=merged?"건":"";
+  byId("defect-note").textContent=merged?"동일 fingerprint 1건":"독립 판정 통합 전";
+  byId("approval").textContent=merged?approvalLabels[r.approval.status]:"최종 기록에서 확인";
+  byId("archive").textContent=r.run_id+(merged?"　·　발주자·사용자 승인 "+approvalLabels[r.approval.status]:"")+(r.previous?"　·　이전 기록 "+r.previous.run_id+" / "+r.previous.reason:"");
+  byId("active-count").textContent="실행 중 "+active.length;
+  byId("current").disabled=active.length===0;
+  byId("step-back").disabled=pos===0;byId("step-next").disabled=byId("end").disabled=pos===events.length;
+  byId("play").textContent=timer?"Ⅱ 일시정지":pos===events.length?"↺ 다시 재생":"▶ 재생";
+  byId("cursor").textContent="이벤트 "+pos+" / "+events.length;
+  const at=pos?events[pos-1].at:r.created_at;byId("clock").dateTime=at;byId("clock").textContent=kst(at);
+  const waiting=Array.from(states.values()).filter(s=>s==="queued").length;
+  byId("count-note").textContent="대기 "+waiting+"건 · 실행 중 "+active.length+"건"+(pos===events.length?"　/　통합 판정 "+labels[r.decision.status]+" · "+r.decision.reason:"");
+  seek.value=String(pos);seek.setAttribute("aria-valuetext",pos+" / "+events.length+" 이벤트");
+  document.body.classList.toggle("motion",!reduce.checked);document.body.classList.toggle("playing",Boolean(timer));
+  inspect();
+}
+function stop(){if(timer){clearInterval(timer);timer=null}}
+function go(index){
+  stop();pos=Math.max(0,Math.min(events.length,index));update();
+}
+byId("step-back").onclick=()=>go(pos-1);
+byId("step-next").onclick=()=>go(pos+1);
+byId("end").onclick=()=>go(events.length);
+seek.oninput=()=>go(Number(seek.value));
+byId("play").onclick=()=>{
+  if(timer){stop();update();return}
+  if(!events.length)return;
+  if(pos===events.length)pos=0;
+  timer=setInterval(()=>{pos++;if(pos>=events.length)stop();update()},900);update();
+};
+reduce.onchange=update;
+if(mq.addEventListener)mq.addEventListener("change",()=>{reduce.checked=mq.matches;update()});
+byId("current").onclick=()=>{
+  const active=checks.filter(c=>states.get(c.id)==="running");if(!active.length)return;
+  const c=active[currentIndex++%active.length];selected=c.id;update();
+  const card=cards.get(c.id);card.focus({preventScroll:true});card.scrollIntoView({block:"nearest",inline:"center",behavior:"auto"});
+};
+function initial(){
+  // Start at an observed failure if present. Prefer a point with concurrent work.
+  const seen=new Map();let failure=null, firstFailure=null, parallel=null;
+  for(let i=0;i<events.length;i++){
+    const e=events[i];seen.set(e.check_id,e.state);
+    if(e.state==="failed"&&!firstFailure){firstFailure=[i+1,e.check_id]}
+    if(e.state==="failed")failure=e.check_id;
+    const active=Array.from(seen).filter(pair=>pair[1]==="running");
+    if(!parallel&&active.length>1)parallel=[i+1,active[0][0]];
+    if(failure&&active.length){return [i+1,failure]}
+  }
+  return firstFailure||parallel||[events.length,checks[0]?.id||null];
+}
+makeBoard();[pos,selected]=initial();update();
+</script></body></html>

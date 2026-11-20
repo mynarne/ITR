@@ -1,0 +1,106 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ITR · 로컬 진행</title>
+<style>
+:root{color-scheme:light;--ink:#1c322a;--dim:#495e52;--paper:#f4f6ef;--white:#fcfdf8;--line:#c8d1c7;--green:#196047;--mono:"IBM Plex Mono",ui-monospace,monospace}*{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--paper);font:14px/1.5 Inter,"Noto Sans CJK KR","Malgun Gothic",sans-serif;word-break:keep-all;overflow-wrap:anywhere}header{background:#19312a;color:#edf3e7}header>div,main{max-width:1480px;margin:auto;padding-inline:clamp(12px,3vw,45px)}header>div{height:54px;display:flex;align-items:center;gap:12px}header b{font:900 italic 30px/1 Arial;letter-spacing:-3px}header small{font:12px var(--mono);border-left:1px solid #718479;padding-left:12px}header span{margin-left:auto;font-size:12px;color:#d9edab}main{padding-bottom:24px}h1{font-size:clamp(29px,3vw,43px);letter-spacing:-.055em;margin:0}h2{font-size:17px;letter-spacing:-.035em;margin:0}h3{margin:4px 0;font-size:18px}.hero{padding-block:20px 15px}.hero p,.note{color:var(--dim);margin:2px 0}.phase{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#eaf0e3;border:1px solid #bdcaba;border-radius:4px;padding:11px 14px}.phase b{font-size:15px}.phase span{color:var(--dim);font-size:12px}.tools{margin-left:auto;display:flex;align-items:center;gap:10px}.tools label{display:flex;align-items:center;gap:5px;cursor:pointer}.tools button{cursor:pointer;border:1px solid #aab8a9;border-radius:3px;background:#fafcf6;padding:5px 10px;color:var(--ink);font:inherit}.tools button:disabled{opacity:.5}.tools input{accent-color:#196047}button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #1572ae;outline-offset:2px}.panel{background:var(--white);border:1px solid var(--line);border-radius:4px;overflow:hidden;min-width:0}.panel+.panel{margin-top:14px}.topline{padding:10px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px}.topline span{font-size:12px;color:var(--dim)}.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,24%);gap:14px;margin-top:14px;align-items:start}.scroll{position:relative;overflow:auto}.board{position:relative;isolation:isolate}.row{display:grid;grid-template-columns:var(--cols);border-bottom:1px solid #d9e0d6}.row:last-child{border:0}.role,.level{background:#edf1e7;padding:7px 8px;font-size:11px;font-weight:700;color:var(--dim)}.role{position:sticky;left:0;z-index:3;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--line)}.role small{font-weight:400}.level{text-align:center}.cell{position:relative;display:flex;flex-direction:column;gap:4px;justify-content:center;padding:6px 8px;border-right:1px dashed #dce1d8;min-height:40px}.card{position:relative;z-index:2;cursor:pointer;border:1px solid #adbdad;border-radius:3px;padding:5px 7px;text-align:left;background:#eaf0e3;color:#274533;overflow:hidden}.card b,.card small{display:block}.card b{font-size:12px}.card small{font-weight:700;font-size:10px}.card[aria-pressed=true]{outline:2px solid #264034;outline-offset:1px}.card[data-state=queued],.card[data-state=not_run],.card[data-state=unconfirmed]{background:#f3f4ef;color:#536257;border:1px dashed #96a296}.card[data-state=running]{background:#dbefd9;color:#155136;border-color:#599b69}.card[data-state=blocked]{background:#f8edcf;color:#71500e;border-color:#bf9b53}.card[data-state=failed]{background:#fae5dc;color:#8d2a19;border-color:#ca9482}.motion .card[data-state=running]{animation:pulse 1.8s ease-in-out infinite}.motion .card[data-state=running]:after{content:"";position:absolute;top:2px;left:4px;height:4px;width:4px;border-radius:99px;background:#2a794a;animation:trace 1.8s ease-in-out infinite}@keyframes pulse{50%{box-shadow:0 0 0 2px #75ae8445}}@keyframes trace{50%{left:calc(100% - 8px)}}.flow{position:absolute;inset:0;pointer-events:none;z-index:1}.detail,.summary{padding:12px 14px}.detail p{margin:5px 0}.summary{display:flex;gap:16px;align-items:start}.summary>div:first-child{overflow:auto;flex:1}.metric{border-left:1px solid var(--line);padding-left:14px;font-size:12px}.metric b{display:block;font:600 28px/1.2 var(--mono)}table{border-collapse:collapse;width:100%;font-size:12px;white-space:nowrap}td,th{text-align:right;padding:3px 5px;border-bottom:1px solid #dee4db}td:first-child,th:first-child{text-align:left}.note{font-size:12px;margin:8px 0}.hint{padding:8px 14px;border-top:1px solid var(--line);font-size:12px;color:var(--dim)}.report-link{display:inline-block;margin-top:8px;padding:6px 10px;border:1px solid #a2b49f;border-radius:3px;color:var(--green);font-weight:700}.report-link[hidden]{display:none}.rev{font:11px var(--mono);color:var(--dim);word-break:break-all}.empty{margin:14px}.legend{font-size:11px;color:var(--dim);padding:8px 14px;border-top:1px solid var(--line)}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}@media(max-width:750px){.grid{grid-template-columns:1fr}.tools{margin-left:0}.tools button,.tools label{min-height:44px}.card{min-height:42px}.topline{padding-inline:10px}.summary{gap:5px;padding-inline:6px}.metric{padding-left:6px}.hero{padding-top:14px}.phase{gap:6px}.role{padding:4px}.rev{font-size:10px}}
+</style></head><body>
+<header><div><b>ITR</b><small lang="en">Is This Real?</small><span>로컬 저널 관찰</span></div></header><main>
+<div class="hero"><h1>실행 진행</h1><p id="project">실행 색인 연결 중</p></div>
+<section class="phase" aria-label="관찰 상태"><b id="phase" role="status">연결 중</b><span id="position"></span><span id="clock"></span><div class="tools"><label><input id="reduce" type="checkbox">모션 줄이기</label><button type="button" id="current" disabled>현재 작업으로</button></div></section>
+<div class="grid"><div><section class="panel"><div class="topline"><h2>검증 흐름</h2><span id="active"></span></div><div class="scroll" tabindex="0" role="region" aria-label="역할과 단계별 검증 흐름"><div id="board" class="board"></div></div><div class="legend">● 실행 중　 ✓ 통과　 × 실패　 ! 차단　 ○ 대기　 – 미실행</div></section>
+<section class="panel"><div class="topline"><h2>단계별 판정</h2><span>저널 기준</span></div><div class="summary"><div><table id="stage-counts"><thead><tr><th>단계</th><th>통과</th><th>실패</th><th>차단</th><th>미실행</th></tr></thead><tbody></tbody></table></div><div class="metric">고유 결함<b id="defect-total">—</b><span id="defect-note">통합 전</span></div></div><div class="hint" id="decision"></div></section></div>
+<aside class="panel"><div class="topline"><h2>검사 상세</h2></div><div class="detail"><div id="details">검사 카드를 선택하세요.</div><a id="report" class="report-link" hidden>봉인된 검사·결함 상세 열기</a></div></aside></div><p class="note" id="note"></p><p class="rev" id="revision"></p></main>
+<script>
+"use strict";
+const q=id=>document.getElementById(id), mk=(t,c,v)=>{const e=document.createElement(t);if(c)e.className=c;if(v!==undefined)e.textContent=v;return e};
+const stage={unit:"단위",integration:"통합",system:"시스템",intersystem:"시스템 간 통합",acceptance:"인수 시나리오"},role={runner:"실행기",bb_goal:"목표 충족",bb_context:"사용 맥락",bb_boundary:"경계 조건",wb_logic:"내부 로직",wb_contract:"모듈 계약",wb_config:"구성·설정"};
+const labels={queued:"○ 대기",running:"● 실행 중",passed:"✓ 통과",failed:"× 실패",blocked:"! 차단",not_run:"– 미실행",unconfirmed:"◌ 진행 미확인"};
+const phase={waiting:"실행 대기",preparing:"시도 초기화",live:"저널 관찰 중",unconfirmed:"갱신 대기 · 실행 지속 미확인",synchronizing:"기록 작성 확인 중",interrupted:"중단 · 미완결",invalid:"기록 대조 필요 · 미완결",sealed:"최종 기록 봉인"};
+const terminal=["passed","failed","blocked","not_run"];
+const fmt=new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"});
+const board=q("board"),cards=new Map(), rows=new Map(), edges=[];
+const media=matchMedia("(prefers-reduced-motion: reduce)");q("reduce").checked=media.matches;
+let view=null,key="",selected=null,idx=0,serial=0,pending=false,clockLost=false;
+const sn=(t,attrs)=>{const e=document.createElementNS("http://www.w3.org/2000/svg",t);for(const k in attrs)e.setAttribute(k,attrs[k]);return e};
+function build(v){
+  board.replaceChildren();cards.clear();rows.clear();edges.length=0;q("stage-counts").querySelector("tbody").replaceChildren();
+  if(!v.checks.length){board.style.minWidth="0";board.append(mk("p","empty","검사 계획을 기다리는 중입니다."));return}
+  const ordered=[...new Set(v.checks.map(c=>c.stage))].sort((a,b)=>Object.keys(stage).indexOf(a)-Object.keys(stage).indexOf(b));
+  const ro=[...new Set(v.checks.map(c=>c.role))].sort((a,b)=>Object.keys(role).indexOf(a)-Object.keys(role).indexOf(b));
+  board.style.minWidth=(96+ordered.length*126)+"px";board.style.setProperty("--cols","96px repeat("+ordered.length+", minmax(126px, 1fr))");
+  const head=mk("div","row");head.append(mk("div","role","검토 역할 / 단계"));ordered.forEach(k=>head.append(mk("div","level",stage[k]||k)));board.append(head);
+  for(const who of ro){
+    const line=mk("div","row"),cap=mk("div","role");
+    cap.append(mk("small",null,who.startsWith("bb_")?"블랙박스":who.startsWith("wb_")?"화이트박스":"실행"),mk("b",null,role[who]||who));line.append(cap);
+    for(const st of ordered){
+      const cell=mk("div","cell");line.append(cell);
+      for(const c of v.checks.filter(x=>x.role===who&&x.stage===st)){
+        const card=mk("button","card");card.type="button";card.dataset.check=c.id;card.append(mk("small"),mk("b",null,c.title));
+        card.onclick=()=>{selected=c.id;draw()};cell.append(card);cards.set(c.id,card);
+      }
+    }
+    board.append(line);
+  }
+  const svg=sn("svg",{class:"flow","aria-hidden":"true"});board.append(svg);
+  for(const c of v.checks)for(const from of c.depends_on||[]){
+    if(!cards.has(from))continue;const path=sn("path",{fill:"none","stroke-width":"1.5"});svg.append(path);edges.push({from,to:c.id,path});
+  }
+  const body=q("stage-counts").querySelector("tbody");
+  ordered.forEach(k=>{const tr=mk("tr");tr.dataset.stage=k;tr.append(mk("th",null,stage[k]||k));terminal.forEach(s=>{const td=mk("td",null,"0");td.dataset.status=s;tr.append(td)});body.append(tr);rows.set(k,tr)});
+  requestAnimationFrame(layout);
+}
+function layout(){
+  const svg=board.querySelector("svg");if(!svg)return;
+  const root=board.getBoundingClientRect();svg.setAttribute("width",root.width);svg.setAttribute("height",root.height);
+  for(const e of edges){
+    const a=cards.get(e.from).getBoundingClientRect(),b=cards.get(e.to).getBoundingClientRect();
+    const x=a.right-root.left,y=a.top+a.height/2-root.top,dest=(b.left>a.left+8?b.left:b.right)-root.left;
+    const bend=b.left>a.left+8?(x+dest)/2:Math.min(root.width-1,Math.max(x,dest)+5);
+    e.path.setAttribute("d","M "+x+" "+y+" H "+bend+" V "+(b.top+b.height/2-root.top)+" H "+dest);
+  }
+}
+if("ResizeObserver" in window)new ResizeObserver(layout).observe(board);
+window.addEventListener("resize",layout);
+function fresh(){return view&&view.watching&&!view.stopped&&!clockLost&&Date.now()-Date.parse(view.observed_at)<view.heartbeat_ms}
+function currentState(id){const st=view.states[id]||"queued";return st==="running"&&(view.phase!=="live"||!fresh())?"unconfirmed":st}
+function draw(){
+  if(!view)return;const v=view,isFresh=fresh(),active=[];
+  q("phase").textContent=v.stopped?"관찰 종료 · "+phase[v.phase]:!v.watching?"단일 스냅숏 · "+phase[v.phase]:!isFresh?"관찰기 연결 확인 중":phase[v.phase];
+  q("project").textContent=(v.round?v.round+"차 / 시도 "+v.attempt+"　·　":"")+(v.product||"저장소에서 최신 시도를 기다립니다.");
+  q("position").textContent="이벤트 "+v.seq;q("clock").textContent=v.last_event_at?fmt.format(new Date(v.last_event_at))+" KST":"";
+  q("revision").textContent=v.revision?"대상 리비전　"+v.revision:"";
+  const totals=new Map();
+  for(const c of v.checks){
+    const el=cards.get(c.id),s=currentState(c.id);el.dataset.state=s;el.firstChild.textContent=labels[s];el.setAttribute("aria-pressed",String(selected===c.id));
+    if(s==="running")active.push(c.id);
+    const count=totals.get(c.stage)||{};count[s]=(count[s]||0)+1;totals.set(c.stage,count);
+  }
+  for(const [st,tr] of rows)tr.querySelectorAll("td").forEach(td=>td.textContent=totals.get(st)?.[td.dataset.status]||0);
+  for(const e of edges){const pending=currentState(e.to)==="queued";e.path.setAttribute("stroke",currentState(e.to)==="running"?"#4c8865":"#a0afa2");e.path.setAttribute("stroke-dasharray",pending?"3 3":"none")}
+  q("active").textContent="실행 확인 "+active.length+"건";q("current").disabled=!active.length;
+  document.body.classList.toggle("motion",isFresh&&!q("reduce").checked);
+  q("defect-total").textContent=v.phase==="sealed"?v.defects:"—";q("defect-note").textContent=v.phase==="sealed"?"건 · 중복 제거":"통합 전";
+  const report=q("report");report.hidden=true;report.removeAttribute("href");
+  if(v.phase==="sealed"&&typeof v.report==="string"&&/^reports\/round-[0-9]+-attempt-[0-9]+\/replay\.html$/.test(v.report)){report.href=v.report+(selected?"#check="+encodeURIComponent(selected):"");report.hidden=false}
+  q("decision").textContent=v.phase==="sealed"?"통합 판정　"+labels[v.decision]:"통합 판정을 기다립니다.";
+  q("note").textContent=v.phase==="interrupted"?"이 시도는 중단되었습니다. 마지막으로 기록된 판정을 보존합니다.":v.phase==="unconfirmed"?"최근 저널 갱신이 없어 실행 지속 여부를 확인할 수 없습니다.":"관찰 중에는 역할별 원문과 증거를 공개하지 않습니다. 봉인된 기록의 분석은 해당 시도의 보고서에서 확인하세요.";
+  const c=v.checks.find(x=>x.id===selected), detail=q("details");detail.replaceChildren();
+  if(c){detail.append(mk("small",null,(c.method==="inspection"?"인스펙션":"실행 테스트")+" · "+(role[c.role]||c.role)),mk("h3",null,c.title),mk("p",null,labels[currentState(c.id)]+"　·　"+(stage[c.stage]||c.stage)),mk("p","rev",c.id));}
+  else detail.append(mk("p",null,"검사 카드를 선택하세요."));
+}
+window.ITR_PROGRESS=function(v){
+  const plan=v.run_id+"/"+v.round+"/"+v.attempt+"/"+JSON.stringify(v.checks);
+  view=v;clockLost=false;
+  if(key!==plan){key=plan;selected=null;idx=0;build(v)}
+  draw();
+};
+q("reduce").onchange=draw;
+if(media.addEventListener)media.addEventListener("change",()=>{q("reduce").checked=media.matches;draw()});
+q("current").onclick=()=>{if(!view)return;const active=view.checks.filter(c=>currentState(c.id)==="running");if(!active.length)return;selected=active[idx++%active.length].id;draw();const card=cards.get(selected);card.focus({preventScroll:true});card.scrollIntoView({block:"nearest",inline:"center",behavior:"auto"})};
+function poll(){
+  if(pending)return;pending=true;
+  const script=document.createElement("script");script.src="./progress.index.js?read="+Date.now()+"-"+serial++;
+  script.onload=()=>{pending=false;script.remove()};
+  script.onerror=()=>{pending=false;clockLost=true;script.remove();if(view)draw();else q("phase").textContent="진행 색인 연결 대기"};
+  document.head.append(script);
+}
+poll();setInterval(poll,360);setInterval(draw,1100);
+</script></body></html>

@@ -1,0 +1,266 @@
+{
+  "mode": "precision",
+  "product": "마을상점 영수증 · 합성 CLI",
+  "revision": "sha256:3af4b54578f5c2d198faa3374ccf059a629c4e8ac439d147128f696276015273",
+  "baselines": [
+    {
+      "id": "G-TOTAL",
+      "kind": "goal",
+      "text": "고객에게 품목 금액과 배송비를 합한 원화 청구액을 표시한다.",
+      "version": "1.0"
+    },
+    {
+      "id": "R-FREE",
+      "kind": "requirement",
+      "text": "품목 합계가 10,000원 이상이면 배송비는 0원, 미만이면 3,000원이다.",
+      "version": "1.0"
+    },
+    {
+      "id": "R-CONTRACT",
+      "kind": "requirement",
+      "text": "영수증 JSON은 subtotal, shipping, total, currency 필드를 제공한다.",
+      "version": "1.0"
+    },
+    {
+      "id": "R-OFFLINE",
+      "kind": "rule",
+      "text": "합성 결제기는 원화 단위를 사용하고 외부 동기화를 끈다.",
+      "version": "1.0"
+    },
+    {
+      "id": "R-DEVICE",
+      "kind": "requirement",
+      "text": "선택된 실제 휴대 단말에서 현장 직원이 영수증을 읽을 수 있다.",
+      "version": "1.0"
+    },
+    {
+      "id": "R-LEDGER",
+      "kind": "requirement",
+      "text": "별도 합성 장부가 제공된 회차에만 외부 장부 인계 시나리오를 검증한다.",
+      "version": "1.0"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "local_python",
+      "available": true
+    },
+    {
+      "id": "source",
+      "available": true
+    },
+    {
+      "id": "physical_device",
+      "available": false
+    },
+    {
+      "id": "sandbox_ledger",
+      "available": false
+    }
+  ],
+  "checks": [
+    {
+      "id": "unit-subtotal",
+      "title": "품목 합계",
+      "stage": "unit",
+      "method": "execution",
+      "role": "runner",
+      "criteria": [
+        "G-TOTAL"
+      ],
+      "pass_condition": "2×2,500원과 1×1,000원의 품목 합계가 6,000원이다.",
+      "requires": [
+        "local_python"
+      ],
+      "depends_on": [],
+      "selected": true
+    },
+    {
+      "id": "bb-goal",
+      "title": "장바구니 결제",
+      "stage": "acceptance",
+      "method": "execution",
+      "role": "bb_goal",
+      "criteria": [
+        "G-TOTAL",
+        "R-FREE"
+      ],
+      "pass_condition": "6,000원 상품 2개의 청구액이 12,000원이며 배송비가 0원이다.",
+      "requires": [
+        "local_python"
+      ],
+      "depends_on": [
+        "system-receipt"
+      ],
+      "selected": true
+    },
+    {
+      "id": "bb-context",
+      "title": "소액 주문 영수증",
+      "stage": "system",
+      "method": "execution",
+      "role": "bb_context",
+      "criteria": [
+        "G-TOTAL",
+        "R-CONTRACT"
+      ],
+      "pass_condition": "4,000원 주문에서 배송비를 포함한 7,000원과 KRW가 출력된다.",
+      "requires": [
+        "local_python"
+      ],
+      "depends_on": [
+        "integration-basket"
+      ],
+      "selected": true
+    },
+    {
+      "id": "bb-boundary",
+      "title": "무료 배송 경계",
+      "stage": "system",
+      "method": "execution",
+      "role": "bb_boundary",
+      "criteria": [
+        "G-TOTAL",
+        "R-FREE"
+      ],
+      "pass_condition": "9,999원·10,000원·10,001원의 배송비가 순서대로 3,000·0·0원이다.",
+      "requires": [
+        "local_python"
+      ],
+      "depends_on": [
+        "integration-basket"
+      ],
+      "selected": true
+    },
+    {
+      "id": "wb-logic",
+      "title": "경계 비교식",
+      "stage": "unit",
+      "method": "inspection",
+      "role": "wb_logic",
+      "criteria": [
+        "R-FREE"
+      ],
+      "pass_condition": "배송비 분기의 AST가 subtotal >= 10000이고 참/거짓 금액이 0/3000이다.",
+      "requires": [
+        "source"
+      ],
+      "depends_on": [
+        "unit-subtotal"
+      ],
+      "selected": true
+    },
+    {
+      "id": "wb-contract",
+      "title": "영수증 출력 계약",
+      "stage": "integration",
+      "method": "inspection",
+      "role": "wb_contract",
+      "criteria": [
+        "R-CONTRACT"
+      ],
+      "pass_condition": "receipt가 반환하는 딕셔너리 키가 규정된 네 키와 일치한다.",
+      "requires": [
+        "source"
+      ],
+      "depends_on": [
+        "unit-subtotal"
+      ],
+      "selected": true
+    },
+    {
+      "id": "wb-config",
+      "title": "오프라인 설정",
+      "stage": "system",
+      "method": "inspection",
+      "role": "wb_config",
+      "criteria": [
+        "R-OFFLINE"
+      ],
+      "pass_condition": "설정 리터럴에서 통화 KRW 및 external_sync=false를 확인한다.",
+      "requires": [
+        "source"
+      ],
+      "depends_on": [
+        "unit-subtotal"
+      ],
+      "selected": true
+    },
+    {
+      "id": "integration-basket",
+      "title": "품목·배송비 결합",
+      "stage": "integration",
+      "method": "execution",
+      "role": "runner",
+      "criteria": [
+        "G-TOTAL",
+        "R-CONTRACT"
+      ],
+      "pass_condition": "품목 합계 5,500원에 배송비 3,000원을 더해 8,500원의 영수증을 만든다.",
+      "requires": [
+        "local_python"
+      ],
+      "depends_on": [
+        "unit-subtotal",
+        "wb-contract"
+      ],
+      "selected": true
+    },
+    {
+      "id": "system-receipt",
+      "title": "영수증 CLI 왕복",
+      "stage": "system",
+      "method": "execution",
+      "role": "runner",
+      "criteria": [
+        "G-TOTAL",
+        "R-CONTRACT"
+      ],
+      "pass_condition": "12,500원 입력이 배송비 0원 및 총액 12,500원의 JSON으로 출력된다.",
+      "requires": [
+        "local_python"
+      ],
+      "depends_on": [
+        "integration-basket",
+        "wb-contract"
+      ],
+      "selected": true
+    },
+    {
+      "id": "system-device",
+      "title": "실기기 열람",
+      "stage": "system",
+      "method": "execution",
+      "role": "runner",
+      "criteria": [
+        "R-DEVICE"
+      ],
+      "pass_condition": "실기기에서 직원이 추가 확대 없이 청구 총액을 정확히 읽는다.",
+      "requires": [
+        "physical_device"
+      ],
+      "depends_on": [
+        "integration-basket"
+      ],
+      "selected": true
+    },
+    {
+      "id": "link-ledger",
+      "title": "장부 인계",
+      "stage": "intersystem",
+      "method": "execution",
+      "role": "runner",
+      "criteria": [
+        "R-LEDGER"
+      ],
+      "pass_condition": "영수증과 장부 항목의 금액·통화가 일치한다.",
+      "requires": [
+        "sandbox_ledger"
+      ],
+      "depends_on": [
+        "integration-basket"
+      ],
+      "selected": false
+    }
+  ]
+}

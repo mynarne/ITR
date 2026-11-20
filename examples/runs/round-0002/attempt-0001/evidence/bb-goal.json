@@ -1,0 +1,25 @@
+{
+  "check_id": "bb-goal",
+  "condition": "6,000원 상품 2개의 청구액이 12,000원이며 배송비가 0원이다.",
+  "trace": {
+    "items": [
+      [
+        2,
+        6000
+      ]
+    ]
+  },
+  "expected": {
+    "subtotal": 12000,
+    "shipping": 0,
+    "total": 12000,
+    "currency": "KRW"
+  },
+  "observed": {
+    "subtotal": 12000,
+    "shipping": 0,
+    "total": 12000,
+    "currency": "KRW"
+  },
+  "status": "passed"
+}

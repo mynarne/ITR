@@ -1,0 +1,19 @@
+{
+  "check_id": "unit-subtotal",
+  "condition": "2×2,500원과 1×1,000원의 품목 합계가 6,000원이다.",
+  "trace": {
+    "items": [
+      [
+        2,
+        2500
+      ],
+      [
+        1,
+        1000
+      ]
+    ]
+  },
+  "expected": 6000,
+  "observed": 6000,
+  "status": "passed"
+}

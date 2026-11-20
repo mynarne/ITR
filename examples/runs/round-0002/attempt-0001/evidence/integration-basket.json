@@ -1,0 +1,29 @@
+{
+  "check_id": "integration-basket",
+  "condition": "품목 합계 5,500원에 배송비 3,000원을 더해 8,500원의 영수증을 만든다.",
+  "trace": {
+    "items": [
+      [
+        1,
+        2500
+      ],
+      [
+        2,
+        1500
+      ]
+    ]
+  },
+  "expected": {
+    "subtotal": 5500,
+    "shipping": 3000,
+    "total": 8500,
+    "currency": "KRW"
+  },
+  "observed": {
+    "subtotal": 5500,
+    "shipping": 3000,
+    "total": 8500,
+    "currency": "KRW"
+  },
+  "status": "passed"
+}

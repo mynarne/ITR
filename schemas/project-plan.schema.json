@@ -63,7 +63,7 @@
           }
         }
       ],
-      "description": "UTF-8로 인코딩한 길이 1~256바이트. 저장한 stdout에서 이 문자열을 실제 관찰해야 종료 코드 0을 통과시킨다. 바이트 길이는 어댑터가 추가로 확인한다."
+      "description": "UTF-8로 인코딩한 길이 1~256바이트. stdout 전체 흐름에서 이 문자열을 실제 관찰해야 종료 코드 0을 통과시킨다. 보존 한도 이후의 일치는 별도 발췌에 남긴다. 바이트 길이는 어댑터가 추가로 확인한다."
     },
     "command": {
       "type": "object",
@@ -97,6 +97,11 @@
         },
         "pass_marker": {
           "$ref": "#/$defs/passMarker"
+        },
+        "output_encoding": {
+          "enum": ["utf-8", "cp949"],
+          "default": "utf-8",
+          "description": "하위 프로세스 stdout 및 stderr의 인코딩. CP949 출력에는 명시적으로 지정한다."
         }
       },
       "required": [

@@ -1,0 +1,2 @@
+# Sealed records and MANIFEST.sha256 pin exact bytes. Never convert line endings on checkout.
+* -text

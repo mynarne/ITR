@@ -130,9 +130,9 @@ def _check(value, spec, root, path):
             raise Invalid(f"{path} 최솟값 {spec['minimum']}")
 
 
-def validate(value, part=None):
+def validate(value, part=None, *, schema_path=SCHEMA_PATH):
     """Raise Invalid on shape errors, or return None for a valid ITR value."""
-    root = read_json(SCHEMA_PATH)
+    root = read_json(schema_path)
     spec = root if part is None else root["$defs"][part]
     _check(value, spec, root, "$")
 

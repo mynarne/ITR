@@ -109,10 +109,20 @@ def convert(source: Path, output: Path) -> int:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("source", type=Path, help="Local print.html from views/render.py")
+    parser.add_argument("--profile", choices=("audit", "reader"), default="audit",
+                        help="audit reads print.html; reader reads a sealed record.json")
+    parser.add_argument("source", type=Path, help="Local print.html or sealed record.json")
     parser.add_argument("output", type=Path, help="New PDF file")
     args = parser.parse_args()
-    pages = convert(args.source, args.output)
+    if args.profile == "reader":
+        try:
+            import pymupdf
+        except ImportError as exc:
+            raise SystemExit("This optional export requires PyMuPDF.") from exc
+        from reader_pdf import convert_reader
+        pages = convert_reader(pymupdf, args.source, args.output)
+    else:
+        pages = convert(args.source, args.output)
     print(f"{args.output} ({pages} pages)")
 
 

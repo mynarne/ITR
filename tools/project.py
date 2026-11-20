@@ -13,7 +13,7 @@ from pathlib import Path
 
 from itr import Journal
 from itr_store import digest, encoded, fresh, gate, load, names, need, now, predecessor, safe_file
-from project_plan import inspect, stable, validate
+from project_plan import EVIDENCE_SCHEMA_VERSION, inspect, stable, validate
 from project_process import run_command
 from project_verify import verify_project
 
@@ -36,17 +36,19 @@ def one(check, number, command, bundle, journal, missing, parent_status, stop):
         status, why = "not_run", "승인된 실행 명령이 지정되지 않았습니다."
     else:
         journal.emit(key, "running", "승인된 로컬 명령의 작업 사본을 준비합니다.")
+        report = {"evidence_schema_version": binding["evidence_schema_version"], "argv": command["argv"],
+                  "launch_argv": None, "exit_code": None}
         try:
-            status, why, report = run_command(command, binding, payloads, actual_paths, stop)
+            status, why = run_command(command, binding, payloads, actual_paths, stop, report)
         except OSError as error:
             status, why = "blocked", f"로컬 실행 환경 오류 · {error.__class__.__name__}"
-            report = {"argv": command["argv"], "finished_at": now(), "error": why, "exit_code": None}
+            report.update(finished_at=now(), error=why)
         if "pass_marker" in command:
             marker = command["pass_marker"]
-            seen = marker in report.get("stdout", "")
+            seen = marker in report.get("stdout", "") or report.get("stdout_marker_excerpt", {}).get("text") == marker
             report.update(pass_marker=marker, pass_marker_seen=seen)
             if status == "passed" and not seen:
-                status, why = "blocked", "종료 코드 0이지만 보존된 stdout에서 지정한 통과 증거 문구를 확인하지 못했습니다."
+                status, why = "blocked", "종료 코드 0이지만 stdout에서 지정한 통과 증거 문구를 확인하지 못했습니다."
         report.update(check_id=key, pass_condition=check["pass_condition"], status=status, detail=why)
         content = encoded(report)
         path = f"evidence/{number:04d}.json"
@@ -177,6 +179,7 @@ def run(args, stop):
                   "approval": {"status": "not_requested", "actor": None, "at": None},
                   "decision": {"status": state, "reason": "선택한 검사 기준의 기술 판정. 실패, 차단, 미실행, 통과의 순으로 집계."},
                   "extensions": {"adapter": "itr.local.project.v1", "approval_sha256": args.approve,
+                                 "evidence_schema_version": binding["evidence_schema_version"],
                                  "standards": plan["standards"], "regression": history}}
         validate(record)
         content = encoded(record)
@@ -218,7 +221,10 @@ def main():
         return 0
     if args.command == "verify":
         data = verify_project(args.record.absolute())
-        print(f"검증 통과 · {data['run_id']} · {data['created_at']} KST")
+        version = data["extensions"].get("evidence_schema_version")
+        note = (f"증거 {EVIDENCE_SCHEMA_VERSION} · 실행 인수 필드 확인" if version == EVIDENCE_SCHEMA_VERSION
+                else "기존 증거 · 실제 실행 인수 미기록")
+        print(f"검증 통과 · {data['run_id']} · {data['created_at']} KST · {note}")
         return 0
     stop = threading.Event()
     old = {}
@@ -232,6 +238,8 @@ def main():
 
 
 if __name__ == "__main__":
+    for stream in (sys.stdout, sys.stderr):
+        stream.reconfigure(encoding="utf-8", errors="backslashreplace")
     try:
         sys.exit(main())
     except (OSError, ValueError, KeyError, TypeError, UnicodeError) as err:

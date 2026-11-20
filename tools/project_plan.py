@@ -12,7 +12,43 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "schemas"))
 from validate import read_json, validate
 
 MAX_SOURCE_BYTES = 64 * 1024 * 1024
-SYSTEM_PATH = os.pathsep.join(dict.fromkeys([str(Path(sys.executable).parent), *os.defpath.split(os.pathsep)]))
+OUTPUT_ENCODINGS = {"utf-8", "cp949"}
+EXECUTION_POLICY = "itr.local.process.v2"
+EVIDENCE_SCHEMA_VERSION = "2.0"
+
+
+def system_path():
+    directories = [str(Path(sys.executable).absolute().parent)]
+    if os.name == "nt":
+        system_root = os.environ.get("SystemRoot")
+        if system_root:
+            directories.append(str(Path(system_root) / "System32"))
+    else:
+        directories.extend(os.defpath.split(os.pathsep))
+    return os.pathsep.join(dict.fromkeys(p for p in directories if Path(p).is_absolute()))
+
+
+SYSTEM_PATH = system_path()
+
+
+def executable(name):
+    if name == "{python}":
+        return sys.executable
+    path = Path(name)
+    if os.name != "nt":
+        return shutil.which(name, path=SYSTEM_PATH)
+    # Python 3.9–3.11 shutil.which can search the current directory on Windows.
+    if path.is_absolute():
+        return str(path) if path.suffix.lower() == ".exe" and path.is_file() else None
+    name = name if path.suffix else name + ".exe"
+    if Path(name).suffix.lower() != ".exe":
+        return None
+    return next((str(Path(folder) / name) for folder in SYSTEM_PATH.split(os.pathsep)
+                 if (Path(folder) / name).is_file()), None)
+
+
+def executable_path_hash(path):
+    return digest(path.encode("utf-8", errors="surrogatepass"))
 
 
 def file_hash(path):
@@ -87,7 +123,9 @@ def inspect(workspace, plan_path):
     programs, actual_paths, hashes = {}, {}, {}
     for key, command in commands.items():
         need(isinstance(command, dict) and "argv" in command and
-             set(command) <= {"argv", "timeout_s", "fingerprint", "pass_marker"}, f"{key} 명령 키 오류")
+             set(command) <= {"argv", "timeout_s", "fingerprint", "pass_marker", "output_encoding"}, f"{key} 명령 키 오류")
+        encoding = command.get("output_encoding", "utf-8")
+        need(isinstance(encoding, str) and encoding in OUTPUT_ENCODINGS, f"{key} 출력 인코딩 오류")
         argv = command["argv"]
         need(isinstance(argv, list) and argv and all(isinstance(v, str) and "\x00" not in v for v in argv)
              and argv[0], f"{key} argv는 인수 문자열 배열입니다.")
@@ -106,12 +144,13 @@ def inspect(workspace, plan_path):
         if name.startswith("./"):
             rel = name[2:]
             need(rel in payloads, "프로젝트 로컬 실행 파일은 files에 고정해야 합니다.")
-            programs[name] = digest(payloads[rel])
+            programs[name] = (None if os.name == "nt" and Path(rel).suffix.lower() != ".exe"
+                              else digest(payloads[rel]))
             actual_paths[name] = None
             continue
-        need(name == "{python}" or Path(name).is_absolute() or all(c not in name for c in ("/", "\\")),
+        need(name == "{python}" or Path(name).is_absolute() or (not Path(name).drive and all(c not in name for c in ("/", "\\"))),
              "도구 이름, 절대 실행 파일, ./프로젝트-도구 또는 {python}이 필요합니다.")
-        resolved = sys.executable if name == "{python}" else shutil.which(name, path=SYSTEM_PATH)
+        resolved = executable(name)
         if resolved:
             path = Path(resolved).resolve(strict=True)
             if path not in hashes:
@@ -122,6 +161,10 @@ def inspect(workspace, plan_path):
     capabilities = [{**cap, "available": cap["available"] and probe(cap["id"])} for cap in data["input"]["capabilities"]]
     input_snapshot = {**data["input"], "capabilities": capabilities}
     binding = dict(plan_sha256=digest(raw), files=specs, executables=programs,
-                   workspace_sha256=digest(os.fsencode(str(workspace))), capabilities=capabilities)
+                   workspace_sha256=digest(os.fsencode(str(workspace))), capabilities=capabilities,
+                   execution_policy=EXECUTION_POLICY, evidence_schema_version=EVIDENCE_SCHEMA_VERSION,
+                   launch_os=os.name, executable_paths_sha256={
+                       name: executable_path_hash(path) if path is not None else None
+                       for name, path in actual_paths.items()})
     approval = {"approval_sha256": stable(binding), **binding}
     return data, raw, input_snapshot, approval, payloads, actual_paths

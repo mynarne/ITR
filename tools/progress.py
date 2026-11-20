@@ -20,6 +20,9 @@ PHASE = {"waiting": "실행 대기", "preparing": "시도 초기화", "live": "�
          "interrupted": "중단 · 미완결", "invalid": "기록 대조 필요 · 미완결",
          "sealed": "최종 기록 봉인"}
 MAX_GAP = 20.0
+REPLACE_BACKOFF = 0.20
+FLUSH_TIMEOUT = 2.0
+FINISHED_PHASES = {"sealed", "interrupted"}
 PAGE = Path(__file__).resolve().parents[1] / "views" / "progress.html"
 
 
@@ -172,8 +175,63 @@ def publish(out, view, watching, interval, stopped=False):
             temp.write(script)
         os.replace(temp_name, out / "progress.index.js")
     finally:
-        if temp_name and os.path.exists(temp_name):
-            os.unlink(temp_name)
+        if temp_name:
+            Path(temp_name).unlink(missing_ok=True)
+
+
+class Publication:
+    """A busy destination delays publication, never journal observation."""
+
+    def __init__(self, out, interval):
+        self.out, self.interval = out, interval
+        self.latest = None
+        self.pending = {}
+        self.next_write = 0.0
+        self.heartbeat = 0.0
+        self.busy = False
+
+    def observe(self, view):
+        if view == self.latest:
+            return
+        self.latest = view
+        if view["phase"] in FINISHED_PHASES:
+            key = (view["round"], view["attempt"], view["run_id"])
+            self.pending[key] = view
+        self.heartbeat = 0.0
+
+    def tick(self, watching=True, stopped=False):
+        clock = time.monotonic()
+        if clock < self.next_write or (not self.pending and clock < self.heartbeat):
+            return False
+        key = next(iter(self.pending), None)
+        view = self.pending[key] if key is not None else self.latest
+        is_latest = view == self.latest
+        try:
+            publish(self.out, view, watching, self.interval, stopped=stopped and is_latest)
+        except PermissionError as error:
+            if getattr(error, "winerror", None) not in {5, 32, 33}:
+                raise
+            if not self.busy:
+                print("ITR · 진행 색인이 잠겨 갱신을 재시도합니다.", file=sys.stderr, flush=True)
+            self.busy = True
+            self.next_write = clock + REPLACE_BACKOFF
+            return False
+        self.busy = False
+        if key is not None:
+            del self.pending[key]
+        self.heartbeat = time.monotonic() + 1.0 if is_latest else 0.0
+        return is_latest and not self.pending
+
+    def flush(self, stopped=False):
+        """Publish the last observation, or explicitly signal that the index is still stale."""
+        self.heartbeat = 0.0
+        deadline = time.monotonic() + FLUSH_TIMEOUT
+        while time.monotonic() < deadline:
+            if self.tick(watching=False, stopped=stopped):
+                return
+            if self.busy:
+                time.sleep(max(0.0, min(deadline, self.next_write) - time.monotonic()))
+        raise OSError("진행 색인 잠금이 계속되어 최종 화면 갱신에 실패했습니다. 실행 원본을 다시 조회하세요.")
 
 
 def sealed_report(out, store, view, cache):
@@ -215,16 +273,19 @@ def main():
     if out:
         setup_out(out, store)
         print("진행 화면 · " + str(out / "index.html"), file=sys.stderr, flush=True)
-    previous, published, view = None, 0.0, None
+    previous = None
     reports = {}
+    publication = Publication(out, args.interval) if out else None
     try:
         while True:
             view = snapshot(store)
-            if out:
+            if publication:
                 sealed_report(out, store, view, reports)
-            if out and (previous != view or time.monotonic()-published >= 1.0):
-                publish(out, view, args.watch, args.interval)
-                published = time.monotonic()
+                publication.observe(view)
+                if args.watch:
+                    publication.tick()
+                else:
+                    publication.flush()
             if view != previous:
                 if args.json:
                     print(json.dumps(view, ensure_ascii=False), flush=True)
@@ -236,14 +297,20 @@ def main():
                 previous = view
             if not args.watch:
                 break
-            time.sleep(args.interval)
+            delay = min(args.interval, REPLACE_BACKOFF) if publication and publication.busy else args.interval
+            time.sleep(delay)
     except KeyboardInterrupt:
-        if out and view is not None:
-            publish(out, view, False, args.interval, stopped=True)
+        if publication:
+            view = snapshot(store)
+            sealed_report(out, store, view, reports)
+            publication.observe(view)
+            publication.flush(stopped=True)
     return 0
 
 
 if __name__ == "__main__":
+    for stream in (sys.stdout, sys.stderr):
+        stream.reconfigure(encoding="utf-8", errors="backslashreplace")
     try:
         sys.exit(main())
     except (OSError, ValueError) as error:

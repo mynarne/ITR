@@ -36,6 +36,11 @@ LICENSE_HASHES = {
     "LICENSES/Apache-2.0.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
     "LICENSES/Droid-NOTICE.txt": "38751245389e1e23f73e6f5384b5cbe7fa972cc4410c5adc9c04b082a0b9561a",
     "LICENSES/URW-OFL-1.1.txt": "3b709798a0943cbf824ed21b6b2c735e482cf6cb8fa11441e57381c2650253ca",
+    "LICENSES/Pretendard-OFL-1.1.txt": "d31ddd9f2bed32fd7e302a205cf2380ba0de6529152d239ef99cfb6f261bfc04",
+}
+FONT_HASHES = {
+    "assets/fonts/Pretendard-Regular.ttf": "6d0af5258997aec7354a6e340fc2325ba321c410ca48b3af858c8c3d6e92a324",
+    "assets/fonts/Pretendard-SemiBold.ttf": "5e1c548732af70873103066c16e1369b9a8a871f0b38c321a1d5bc73e43cea2d",
 }
 # Each exception is bound to the exact notice bytes checked in Audit.data.
 NOTICE_HOSTS = {
@@ -43,18 +48,31 @@ NOTICE_HOSTS = {
     "LICENSES/Apache-2.0.txt": {"www.apache.org"},
     "LICENSES/Droid-NOTICE.txt": {"www.apache.org"},
     "LICENSES/URW-OFL-1.1.txt": {"scripts.sil.org"},
+    "LICENSES/Pretendard-OFL-1.1.txt": {"scripts.sil.org"},
 }
-CORE = {*LICENSE_HASHES, *MASCOTS, "SKILL.md", "README.md", "README.ko.md", "README.en.md", "VERSION", LEGACY, "qa/check_release.py"}
+HISTORY_RC1 = {
+    'docs/history-rc1/README.ko.md': 'f57451dc9a6269e6a5d33f6013ddbabed45e49d5626354a1cd2e43fb5723d736',
+    'docs/history-rc1/README.md': '8bfe4b13770f02e1d1118e82e9382ebbab45151885602ee716fa36ffd4693f6c',
+    'docs/history-rc1/SKILL.md': '69a51dc5ae1e132c0225b336fc8870a788163ad2b59d587940868a7c8e99de30',
+    'docs/history-rc1/architecture.ko.md': '832931f6e2356a6aee90ac367b8ef5b1082fe1be474c8bef946506ae1d8d4e6b',
+}
+HISTORY_RC2 = {
+    'docs/history-rc2/README.ko.md': 'bbc5a00c25dc05f4e43e6831c91bf2bf2ac67eaae2abe17af599ed5da6f5f093',
+    'docs/history-rc2/README.md': '20052ffe17a1de11944448014870276a22ea689f712bbba060b47454d691f7f8',
+}
+CORE = {*HISTORY_RC2, *HISTORY_RC1, *LICENSE_HASHES, *FONT_HASHES, *MASCOTS,
+        "SKILL.md", "README.md", "README.ko.md", "README.en.md", "VERSION", LEGACY, "qa/check_release.py"}
 FILES = set("""
-.gitignore VERSION README.md README.ko.md README.en.md SKILL.md VERIFICATION.ko.md MANIFEST.sha256
+.gitattributes .gitignore VERSION README.md README.ko.md README.en.md SKILL.md VERIFICATION.ko.md MANIFEST.sha256
 docs/architecture.ko.md docs/assessment.ko.md docs/gates.ko.md docs/release.ko.md
+docs/verification-rc2.ko.md docs/verification-rc2-followup.ko.md docs/pdf-report.ko.md docs/pdf-editorial.ko.md
 docs/history-0.1/VERIFICATION.ko.md docs/history-0.1/MANIFEST.sha256
 examples/preview/replay.html examples/preview/print.html examples/preview/report.md examples/preview/report.pdf
-qa/check_views.py qa/check_replay.cjs qa/check_browser.py qa/check_release.py qa/package-checks.json qa/print_pdf.py
-schemas/README.md schemas/record.schema.json schemas/project-plan.schema.json schemas/validate.py
+qa/check_views.py qa/check_replay.cjs qa/check_browser.py qa/check_release.py qa/package-checks.json qa/print_pdf.py qa/reader_pdf.py qa/check_reader_pdf.py
+schemas/README.md schemas/record.schema.json schemas/project-plan.schema.json schemas/project-evidence.schema.json schemas/validate.py
 tools/check_itr.py tools/itr.py tools/itr_store.py tools/itr_fixture.py tools/sample_receipt.py tools/progress.py
 views/render.py views/replay.template.html views/progress.html
-""".split()) | MASCOTS.keys() | LICENSE_HASHES.keys()
+""".split()) | MASCOTS.keys() | LICENSE_HASHES.keys() | FONT_HASHES.keys() | HISTORY_RC1.keys() | HISTORY_RC2.keys()
 NEW_FILES = set("""
 tools/project.py tools/project_plan.py tools/project_process.py tools/project_verify.py
 qa/check_project.py qa/check_progress.py qa/browser-check.rc1.json qa/project-check.rc1.json qa/pdf-pagination.rc1.json
@@ -62,7 +80,10 @@ qa/check_progress_dom.cjs qa/dom_test_double.cjs qa/progress-dom.rc1.json qa/pro
 examples/project/checks.py examples/project/inventory.py examples/project/plan-defect.json examples/project/plan.json examples/itr-selfcheck.json
 """.split())
 REVIEWED = {
+    **HISTORY_RC1,
+    **HISTORY_RC2,
     **LICENSE_HASHES,
+    **FONT_HASHES,
     "examples/preview/report.pdf": "0a452738a9530ca8ccee7b909f499b5c1d44b097379f277d4bd8c36c2329a445",
     LEGACY: LEGACY_SHA256,
     **{name: spec[0] for name, spec in MASCOTS.items()},
@@ -232,7 +253,9 @@ class Audit:
         key = (name, checksum)
         if key in self.scanned:
             return checksum
-        if name.endswith(".pdf"):
+        if name in FONT_HASHES:
+            require(content.startswith(b"\x00\x01\x00\x00"), "invalid pinned TrueType font · " + where)
+        elif name.endswith(".pdf"):
             meta = run(["pdfinfo", "-"], content).decode("utf-8")
             self.text(meta, "PDF properties")
             self.text(run(["pdfinfo", "-meta", "-"], content).decode("utf-8"), "PDF XMP")

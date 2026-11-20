@@ -68,6 +68,20 @@ def previews(record, directory):
                 snippet = data.decode("utf8")
                 entry["text"] = snippet[:1800] + ("\n… (발췌)" if len(snippet) > 1800 else "")
             entry["status"] = "해시 대조 완료"
+            extension = record.get("extensions", {})
+            if extension.get("adapter") == "itr.local.project.v1":
+                version = extension.get("evidence_schema_version")
+                if version is None:
+                    entry["launch_status"] = "기존 증거 · 실제 실행 인수 미기록"
+                else:
+                    capture = json.loads(data)
+                    if (version != "2.0" or capture.get("evidence_schema_version") != version
+                            or "launch_argv" not in capture):
+                        entry["launch_status"] = "실행 증거 버전 또는 인수 확인 필요"
+                    elif capture["launch_argv"] is None:
+                        entry["launch_status"] = "증거 2.0 · 프로세스 호출 전 차단"
+                    else:
+                        entry["launch_status"] = "증거 2.0 · 프로세스 호출 인수 기록"
         except (OSError, ValueError, UnicodeError) as exc:
             entry["status"] = ("원본 파일 없음" if isinstance(exc, FileNotFoundError)
                                else "미리보기 없음 · 파일 위치, 인코딩 또는 해시 확인")
@@ -143,6 +157,8 @@ def report_blocks(r, digest, media):
         preview = media[e["id"]]
         yield "h3", f'{e["id"]} · {e["check_id"]} · {e["kind"]}'
         yield "dl", [("경로", e["path"]), ("SHA-256", e["sha256"]), ("미리보기", preview["status"])]
+        if "launch_status" in preview:
+            yield "p", preview["launch_status"]
         if "text" in preview:
             yield "pre", preview["text"]
         if "image" in preview:

@@ -151,6 +151,7 @@ function inspect(){
       const evidenceItem=r.evidence.find(v=>v.id===id);if(!evidenceItem)continue;
       const item=n("div","evidence"),p=data.previews[id]||{};
       item.append(n("b",null,id+" · "+evidenceItem.kind),n("p","meta-line",evidenceItem.path+" · "+(p.status||"미리보기 없음")));
+      if(p.launch_status)item.append(n("p","meta-line",p.launch_status));
       if(p.text)item.append(n("pre",null,p.text));
       if(p.image){const im=n("img");im.src=p.image;im.alt=id+" 검증 캡처";item.append(im)}
       const hash=n("details"),caption=n("summary",null,"SHA-256 보기");hash.append(caption,n("code",null,evidenceItem.sha256));item.append(hash);area.append(item);

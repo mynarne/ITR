@@ -2,6 +2,7 @@
 import copy
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -40,7 +41,10 @@ def tree_bytes(folder):
 
 
 def cli(args, expected=0):
-    result = subprocess.run(CLI + list(map(str, args)), encoding="utf-8",
+    # Simulate a legacy parent console without changing the caller's global environment.
+    env = {**os.environ, "PYTHONIOENCODING": "cp949", "PYTHONUTF8": "0",
+           "ITR_TEST_PARENT_ONLY": "synthetic-parent-value"}
+    result = subprocess.run(CLI + list(map(str, args)), encoding="utf-8", env=env,
                             capture_output=True, timeout=45)
     if expected is not None and result.returncode != expected:
         # The published report only needs the operation and code, not local paths/output.
@@ -305,6 +309,125 @@ def interrupt_and_retry(root, workspace):
     print("PASS 08 · 실행 중 실제 프로세스 중단, 이전 증거·예약 보존 후 새 attempt로 완료")
 
 
+def output_and_environment(root, workspace):
+    plan = json_file(workspace / "plan.json")
+    template = plan["input"]["checks"][0]
+    korean = "완료 검증"
+    scripts = {
+        "utf8-isolated": ("import os,tempfile,pathlib; t=pathlib.Path(tempfile.gettempdir()); "
+                          "assert t.name=='temp' and t.parent==pathlib.Path.cwd().parent; "
+                          "assert all(k not in os.environ for k in "
+                          "('ITR_TEST_PARENT_ONLY','USERPROFILE','APPDATA')); "
+                          "(t/'sample.txt').write_text('temp'); print(" + repr(korean) + ")", None),
+        "boundary": ("import sys; sys.stdout.buffer.write(b'x'*65535+" + repr(korean)
+                     + ".encode()); sys.stderr.buffer.write(b'z'*90000)", None),
+        "late-cp949": ("import sys; sys.stdout.buffer.write(b'x'*90000+" + repr(korean)
+                       + ".encode('cp949')); sys.stderr.buffer.write('보조 출력'.encode('cp949'))", "cp949"),
+        "wrong-codec": ("import sys; sys.stdout.buffer.write(" + repr(korean) + ".encode('cp949'))", None),
+    }
+    plan["input"]["checks"] = [derived_check(template, key) for key in scripts]
+    plan["commands"] = {}
+    for key, (script, encoding) in scripts.items():
+        command = {"argv": ["{python}", "-I", "-B", "-c", script], "pass_marker": korean}
+        if encoding:
+            command["output_encoding"] = encoding
+        plan["commands"][key] = command
+    path = workspace / "qa-output.json"
+    save(path, plan)
+    store = root / "capture"
+    approval = inspect(workspace, path)
+    cli(run_args(workspace, path, store, approval, "--require-pass"), expected=3)
+    record_path = store / FIRST
+    record = verified(record_path)
+    observed = {proof["check_id"]: json_file(record_path.parent / proof["path"]) for proof in record["evidence"]}
+    require(result_map(record) == {"utf8-isolated": "passed", "boundary": "passed",
+                                   "late-cp949": "passed", "wrong-codec": "blocked"}, "encoding and capture gates")
+    require(korean in observed["utf8-isolated"]["stdout"], "isolated interpreter must emit UTF-8")
+    argv = {key: plan["commands"][key]["argv"] for key in ("utf8-isolated", "late-cp949")}
+    executable = str(Path(sys.executable).resolve())
+    require(observed["utf8-isolated"]["launch_argv"] == [executable, "-X", "utf8", *argv["utf8-isolated"][1:]]
+            and observed["late-cp949"]["launch_argv"] == [executable, *argv["late-cp949"][1:]],
+            "launch argv must show the actual executable and flags")
+    for key, offset, encoding in (("boundary", 65535, "utf-8"), ("late-cp949", 90000, "cp949")):
+        output = observed[key]
+        require(output["output_encoding"] == encoding and output["stdout_truncated"] is True
+                and len(output["stdout"]) <= 65536 and "\ufffd" not in output["stdout"]
+                and output["stdout_marker_excerpt"] == {"text": korean, "offset_chars": offset},
+                "bounded prefix and observed late marker")
+    require(observed["boundary"]["stderr_truncated"] and observed["boundary"]["stderr_bytes"] == 90000
+            and observed["late-cp949"]["stderr"] == "보조 출력"
+            and not observed["wrong-codec"]["pass_marker_seen"], "both pipes drained using the approved encoding")
+    # A changed excerpt fails both raw integrity and a recomputed-but-inconsistent record.
+    tampered = root / "capture-tampered"
+    shutil.copytree(store, tampered)
+    tampered_record = tampered / FIRST
+    entry = next(e for e in record["evidence"] if e["check_id"] == "boundary")
+    evidence_path = tampered_record.parent / entry["path"]
+    changed = observed["boundary"]
+    changed["stdout_marker_excerpt"]["offset_chars"] = 0
+    save(evidence_path, changed)
+    cli(["verify", tampered_record], expected=2)
+    entry["sha256"] = checksum(evidence_path.read_bytes())
+    save(tampered_record, record)
+    save(tampered_record.parent / "COMPLETE.json", {"sha256": checksum(tampered_record.read_bytes())})
+    cli(["verify", tampered_record], expected=2)
+    print("PASS 10 · 자식 I/O 인코딩 4건, 임시 환경 격리, 긴 이중 출력 및 발췌 증거 검증")
+
+
+def render_check(record, out, label):
+    before = tree_bytes(record.parent)
+    subprocess.run([sys.executable, "-B", str(PACKAGE / "views" / "render.py"), str(record), "--out", str(out)],
+                   capture_output=True, check=True, timeout=30)
+    require(all(label in (out / name).read_text(encoding="utf-8")
+                for name in ("report.md", "print.html", "replay.html")), "reports must explain launch metadata")
+    require(tree_bytes(record.parent) == before, "render and verify must leave original attempt bytes unchanged")
+
+
+def evidence_versions(root, workspace):
+    # The bundled RC.1 record already predates evidence versioning.
+    legacy = PACKAGE / "examples" / "project-runs" / FIRST
+    before = tree_bytes(legacy.parent)
+    require("실제 실행 인수 미기록" in cli(["verify", legacy]).stdout, "legacy verify must label missing launch data")
+    render_check(legacy, root / "legacy-report", "기존 증거 · 실제 실행 인수 미기록")
+    require(tree_bytes(legacy.parent) == before, "legacy files unchanged")
+
+    good = root / "basic-store" / FIRST
+    require("증거 2.0" in cli(["verify", good]).stdout, "new record uses evidence 2.0")
+    render_check(good, root / "new-report", "증거 2.0 · 프로세스 호출 인수 기록")
+    partial = root / "missing-launch-field"
+    shutil.copytree(good.parent.parent.parent, partial)
+    record_path = partial / FIRST
+    record = json_file(record_path)
+    first = record["evidence"][0]
+    evidence = record_path.parent / first["path"]
+    incomplete = json_file(evidence)
+    del incomplete["launch_argv"]
+    save(evidence, incomplete)
+    first["sha256"] = checksum(evidence.read_bytes())
+    save(record_path, record)
+    save(record_path.parent / "COMPLETE.json", {"sha256": checksum(record_path.read_bytes())})
+    result = cli(["verify", record_path], expected=2)
+    require("필수 키 누락" in result.stderr and "launch_argv" in result.stderr,
+            "new evidence schema must reject a missing required field")
+
+    plan = json_file(workspace / "plan.json")
+    check = plan["input"]["checks"][0]
+    plan["input"]["checks"] = [check]
+    plan["commands"] = {check["id"]: {"argv": ["itr-synthetic-missing-executable"]}}
+    path = workspace / "qa-pre-launch.json"
+    save(path, plan)
+    store = root / "pre-launch"
+    approved = inspect(workspace, path)
+    cli(run_args(workspace, path, store, approved, "--require-pass"), expected=3)
+    blocked = store / FIRST
+    result = verified(blocked)
+    proof = json_file(blocked.parent / result["evidence"][0]["path"])
+    require(proof["evidence_schema_version"] == "2.0" and proof["launch_argv"] is None
+            and proof["status"] == "blocked" and proof["exit_code"] is None, "blocked before process launch")
+    render_check(blocked, root / "pre-launch-report", "증거 2.0 · 프로세스 호출 전 차단")
+    print("PASS 11 · 레거시와 증거 2.0을 재검증·재보고, 필수 키 누락 거부, 호출 전 차단 보존")
+
+
 def main():
     with tempfile.TemporaryDirectory(prefix="itr-project-qa-") as folder:
         root = Path(folder)
@@ -315,6 +438,8 @@ def main():
         capability_and_timeout(root, workspace)
         interrupt_and_retry(root, workspace)
         absent_positive_observation(root, workspace)
+        output_and_environment(root, workspace)
+        evidence_versions(root, workspace)
 
 
 if __name__ == "__main__":

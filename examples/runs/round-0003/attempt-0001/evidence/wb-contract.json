@@ -1,0 +1,21 @@
+{
+  "check_id": "wb-contract",
+  "condition": "receipt가 반환하는 딕셔너리 키가 규정된 네 키와 일치한다.",
+  "trace": {
+    "source": "subject.py",
+    "method": "Python AST"
+  },
+  "expected": [
+    "currency",
+    "shipping",
+    "subtotal",
+    "total"
+  ],
+  "observed": [
+    "currency",
+    "shipping",
+    "subtotal",
+    "total"
+  ],
+  "status": "passed"
+}

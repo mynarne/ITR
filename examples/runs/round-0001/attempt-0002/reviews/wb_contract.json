@@ -1,0 +1,11 @@
+{
+  "role": "wb_contract",
+  "check_ids": [
+    "wb-contract"
+  ],
+  "verdict": "passed",
+  "evidence_ids": [
+    "EV-wb-contract"
+  ],
+  "sealed_at": "2026-11-20T09:46:18.527286+09:00"
+}

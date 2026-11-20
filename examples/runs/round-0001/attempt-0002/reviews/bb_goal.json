@@ -1,0 +1,11 @@
+{
+  "role": "bb_goal",
+  "check_ids": [
+    "bb-goal"
+  ],
+  "verdict": "passed",
+  "evidence_ids": [
+    "EV-bb-goal"
+  ],
+  "sealed_at": "2026-11-20T09:46:18.650904+09:00"
+}

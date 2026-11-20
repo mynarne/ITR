@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "{python}",
+    "-I",
+    "-B",
+    "checks.py",
+    "zero"
+  ],
+  "started_at": "2026-11-20T10:05:49.935233+09:00",
+  "finished_at": "2026-11-20T10:05:50.023493+09:00",
+  "exit_code": 1,
+  "elapsed_s": 0.08826,
+  "stdout": "remaining=0 expected=empty actual=low\n",
+  "stderr": "",
+  "retained_limit_per_stream": 65536,
+  "stdout_bytes": 38,
+  "stdout_truncated": false,
+  "stderr_bytes": 0,
+  "stderr_truncated": false,
+  "pass_marker": "remaining=0 expected=empty actual=empty",
+  "pass_marker_seen": false,
+  "check_id": "stock-zero",
+  "pass_condition": "수량 0을 조회한 담당자에게 empty가 표시되고 수량·기대값·실제값이 기록된다.",
+  "status": "failed",
+  "detail": "승인한 테스트 명령이 실패를 보고했습니다."
+}

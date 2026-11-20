@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "{python}",
+    "-I",
+    "-B",
+    "checks.py",
+    "low"
+  ],
+  "started_at": "2026-11-20T10:05:49.933983+09:00",
+  "finished_at": "2026-11-20T10:05:50.012874+09:00",
+  "exit_code": 0,
+  "elapsed_s": 0.078897,
+  "stdout": "remaining=2 expected=low actual=low\n",
+  "stderr": "",
+  "retained_limit_per_stream": 65536,
+  "stdout_bytes": 36,
+  "stdout_truncated": false,
+  "stderr_bytes": 0,
+  "stderr_truncated": false,
+  "pass_marker": "remaining=2 expected=low actual=low",
+  "pass_marker_seen": true,
+  "check_id": "stock-low",
+  "pass_condition": "수량 2의 CLI 출력이 low이고 검사 로그에 기대값과 실제값이 있다.",
+  "status": "passed",
+  "detail": "승인한 테스트 명령이 정상 종료했습니다."
+}

@@ -1,6 +1,6 @@
 # ITR · Is This Real?
 
-[한국어](README.ko.md) · [English](README.md) · **1.0.0-rc.3**
+[한국어](README.ko.md) · [English](README.md) · **1.0.0-rc.3** · [![CI](https://github.com/mynarne/ITR/actions/workflows/ci.yml/badge.svg)](https://github.com/mynarne/ITR/actions/workflows/ci.yml)
 
 AI가 작업을 마쳤다고 답했을 때, 어느 요구사항까지 실제로 확인됐을까? ITR은 그 질문에 증거로 답하는 독립 소프트웨어 QA 스킬이다. 실행 전에 제품 리비전과 목표, 이번에 선택한 스킬 규칙, 프로젝트 요구사항의 버전을 고정한다. 검사마다 확인할 기준, 통과로 인정할 관찰값, 그 증거를 얻을 수 있는 환경을 정한다. 에이전트마다 다른 모델을 써도 같은 로컬 기록을 이어 읽을 수 있으며 운영 서버도 필요 없다. 사용자에게 보이는 날짜와 시각은 한국 표준시(KST)로 표시한다.
 

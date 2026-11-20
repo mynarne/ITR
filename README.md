@@ -1,6 +1,6 @@
 # ITR · Is This Real?
 
-[English](README.md) · [한국어](README.ko.md) · **1.0.0-rc.3**
+[English](README.md) · [한국어](README.ko.md) · **1.0.0-rc.3** · [![CI](https://github.com/mynarne/ITR/actions/workflows/ci.yml/badge.svg)](https://github.com/mynarne/ITR/actions/workflows/ci.yml)
 
 When an AI agent reports that a change is complete, which requirements have actually been verified? ITR is an independent software QA skill for answering that question. Before a run, it pins the product revision, goals, selected skill rules and project requirements. Each check names the requirement it covers, what must be observed for it to pass, and which environment can produce that evidence. Agents can share the local record without using the same model or running a server. Times are displayed in KST (UTC+09:00).
 

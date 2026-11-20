@@ -255,6 +255,14 @@
         "selected": {
           "type": "boolean",
           "default": true
+        },
+        "standards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/standard_tag"
+          },
+          "minItems": 1,
+          "description": "계획 1.1: 검사 목적에 맞는 표준과 표준 목록(schemas/standards.json)의 항목."
         }
       },
       "required": [
@@ -737,6 +745,28 @@
       "required": [
         "status",
         "reason"
+      ],
+      "additionalProperties": false
+    },
+    "standard_tag": {
+      "type": "object",
+      "properties": {
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "items": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+(\\.[a-z0-9_]+)?$"
+          }
+        }
+      },
+      "required": [
+        "ref",
+        "items"
       ],
       "additionalProperties": false
     }

@@ -5,6 +5,7 @@ import hashlib
 import html
 import json
 import re
+import sys
 from collections import Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -89,7 +90,61 @@ def previews(record, directory):
     return out
 
 
-def report_blocks(r, digest, media):
+def load_catalog(record, folder):
+    """The attempt's standards.json, only when it matches the digest bound by its approval."""
+    try:
+        approval = json.loads((folder / "approval.json").read_bytes())
+        raw = (folder / "standards.json").read_bytes()
+        bound = {k: v for k, v in approval.items() if k != "approval_sha256"}
+        stable = hashlib.sha256(json.dumps(bound, sort_keys=True, ensure_ascii=False, allow_nan=False,
+                                           separators=(",", ":")).encode("utf-8")).hexdigest()
+        if not (stable == approval["approval_sha256"] == record.get("extensions", {}).get("approval_sha256")
+                and hashlib.sha256(raw).hexdigest() == approval["standards_catalog_sha256"]):
+            return None
+        return {entry["ref"]: entry for entry in json.loads(raw)["standards"]}
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+
+
+def standards_blocks(r, results, catalog):
+    """Coverage by purpose-based standard for plan 1.1 records. Items without a check stay visible."""
+    checks = r["input"]["checks"]
+    if not any("standards" in c for c in checks):
+        return
+    def tagged(ref, item=None):
+        return [c for c in checks for t in c.get("standards", [])
+                if t["ref"] == ref and (item is None or item in t["items"])]
+    def counts(found):
+        total = Counter(results[c["id"]]["status"] for c in found)
+        return [str(total[s]) for s in FINAL]
+    selection = r.get("extensions", {}).get("standards", [])
+    verified = catalog is not None
+    catalog = catalog or {}
+    yield "h2", "표준 대응"
+    yield "table", (["표준", "용도", "적용", "검사", *[STATES[s] for s in FINAL]],
+                    [[s["edition"], catalog.get(s["edition"], {}).get("purpose", "표준 목록 외" if verified else "확인 필요"),
+                      "적용" if s["applied"] else "미적용", str(len(tagged(s["edition"]))),
+                      *counts(tagged(s["edition"]))] for s in selection])
+    for s in selection:
+        if not s["applied"]:
+            yield "p", f'{s["edition"]} 미적용 — {s["reason"]}'
+    if not verified:
+        yield "p", "표준 목록 확인 필요 — 시도의 standards.json이 승인 지문과 맞지 않아 항목별 대응을 표시하지 않는다."
+        return
+    for s in selection:
+        entry = catalog.get(s["edition"])
+        if not s["applied"] or not entry or not entry["items"]:
+            continue
+        covered = [i for i in entry["items"] if tagged(s["edition"], i)]
+        missing = [i for i in entry["items"] if i not in covered]
+        label = "항목" if entry.get("coverage") else "사용한 항목"
+        yield "h3", f'{s["edition"]} · {entry["purpose"]} · {label} {len(covered)}/{len(entry["items"])}'
+        yield "table", (["항목", *[STATES[x] for x in FINAL]], [[i, *counts(tagged(s["edition"], i))] for i in covered])
+        if entry.get("coverage"):
+            yield "p", f'검사 없는 항목 {len(missing)}개 — ' + (", ".join(missing) if missing else "없음")
+
+
+def report_blocks(r, digest, media, catalog=None):
     inp = r["input"]
     checks = inp["checks"]
     results = {v["check_id"]: v for v in r["results"]}
@@ -120,6 +175,7 @@ def report_blocks(r, digest, media):
             rows.append([label, *[str(counts[s]) for s in FINAL]])
     yield "table", (["단계", *[STATES[s] for s in FINAL]], rows)
     yield "p", f'고유 결함 {len({d["fingerprint"] for d in defects})}건 · 동일한 fingerprint는 한 건으로 집계합니다.'
+    yield from standards_blocks(r, results, catalog)
     yield "h2", "고정한 기준"
     for b in inp["baselines"]:
         yield "p", f'{b["id"]} · {KINDS[b["kind"]]} · {b["version"]} — {b["text"]}'
@@ -134,6 +190,8 @@ def report_blocks(r, digest, media):
             ("기준", unique_ids(c["criteria"])), ("통과 조건", c["pass_condition"]),
             ("필요 능력", unique_ids(c["requires"])), ("선행 검사", unique_ids(c.get("depends_on", []))),
             ("관찰", res["detail"]), ("증거", unique_ids(res["evidence_ids"])),
+            *([("적용 표준", " / ".join(t["ref"] + (" · " + ", ".join(t["items"]) if t["items"] else "")
+                                          for t in c["standards"]))] if "standards" in c else []),
         ]
     yield "h2", "결함과 회귀 검사"
     if not defects:
@@ -234,7 +292,7 @@ def main():
         ap.error("지원하는 실행 기록 버전은 1.0입니다.")
     digest = hashlib.sha256(raw).hexdigest()
     media = previews(r, record.parent)
-    blocks = list(report_blocks(r, digest, media))
+    blocks = list(report_blocks(r, digest, media, load_catalog(r, record.parent)))
     payload = {"record": r, "digest": digest, "previews": media}
     embedded = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
     replay = (HERE / "replay.template.html").read_text(encoding="utf8").replace("/*__ITR_DATA__*/", embedded)
@@ -247,4 +305,6 @@ def main():
 
 
 if __name__ == "__main__":
+    for stream in (sys.stdout, sys.stderr):
+        stream.reconfigure(encoding="utf-8", errors="backslashreplace")
     main()

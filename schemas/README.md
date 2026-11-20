@@ -5,7 +5,7 @@
 | 계약 | 작성 시점 | 다른 데이터와의 연결 |
 | --- | --- | --- |
 | `input` | 실행 전 | `product`와 `revision`으로 대상을 고정한다. `baselines`의 목표·규칙·요구에는 고유 ID, 버전, 내용을 기록한다. |
-| `input.checks[]` | 계획 확정 시 | `criteria`가 기준 ID를 가리키고 `pass_condition`이 실제로 관찰할 조건을 설명한다. 서로 다른 조건은 별도 검사로 나눈다. `requires`는 능력 ID, `depends_on`은 선행 검사 ID다. |
+| `input.checks[]` | 계획 확정 시 | `criteria`가 기준 ID를 가리키고 `pass_condition`이 실제로 관찰할 조건을 설명한다. 서로 다른 조건은 별도 검사로 나눈다. `requires`는 능력 ID, `depends_on`은 선행 검사 ID다. 계획 1.1에서는 `standards`(`{ref, items}` 배열)가 필수이며 판본과 항목은 [표준 목록](standards.json)을 따른다. |
 | `events[]` | 상태 전환 시 | `seq` 순으로 재생한다. 카드마다 `check_id`가 같은 이벤트의 마지막 `state`를 사용한다. `running` 카드가 같은 시점에 여러 개일 수 있다. |
 | `results[]` | 검사 종료 시 | 검사 ID당 최종 상태 한 개와 관찰 근거를 남긴다. `detail`에 측정값, 차단 사유 또는 미실행 사유를 적고 수행한 검사의 증거 ID를 연결한다. |
 | `evidence[]` | 관찰 기록 시 | `check_id`와 시도 폴더 기준 상대 경로, 파일 바이트 SHA-256을 보존한다. `log`, `capture`, `review`, `measurement`를 지원한다. |

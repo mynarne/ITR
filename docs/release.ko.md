@@ -8,7 +8,7 @@
 | --- | --- |
 | 스킬·소스·문서 | 이번 후보를 위해 작성했거나 출처와 배포 권한을 확인한 파일. README 코드·주석·예제 링크·작성자명과 파일 경로까지 직접 읽는다. |
 | 동봉된 0.1 시도 | 공개 가능한 합성 영수증 데이터. 이전 manifest의 SHA-256과 개별 시도 파일 바이트가 일치해야 한다. 시도 전체가 수록되어야 연결을 재검증할 수 있다. |
-| 신규 재고 샘플 | 두 Python 파일과 두 계획, 해당 계획으로 실행한 시도 2건(총 36개 파일)을 포함한다. 두 시도의 COMPLETE 지문과 개별 파일 해시를 고정하고 소스·계획 바이트 및 수량별 실제 stdout을 대조했다. 1차(계획 2건)는 통과, 2차(계획 3건)는 0개 재고에서 low를 출력해 1건 실패했다. 다른 프로젝트의 실행 저장소는 배포 대상 밖에 둔다. |
+| 신규 재고 샘플 | 두 Python 파일과 두 계획, 해당 계획으로 실행한 시도 2건(총 36개 파일)을 포함한다. 두 시도의 COMPLETE 지문과 개별 파일 해시를 고정하고 소스·계획 바이트 및 수량별 실제 stdout을 대조했다. 1차(계획 2건)는 통과, 2차(계획 3건)는 0개 재고에서 low를 출력해 1건 실패했다. 다른 프로젝트의 실행 저장소는 배포 대상 밖에 둔다. 동봉 시도 2건은 RC.1 당시 계획 1.0으로 만든 기록이고, 현재 예제 계획은 같은 검사에 표준 대응을 더한 1.1이다. |
 | 제품 자체 검사 | 재현 가능한 계획과 출처를 확인한 결과 요약을 넣는다. 실제 프로젝트의 소스 스냅샷, 원시 stdout·stderr, 세션·브라우저 로그와 고객 자료는 별도 로컬 저장소에 보관한다. |
 | 화면·PDF | 내장 JSON, 로그 텍스트, 이미지, 첨부, 링크 목적지, PDF 속성까지 살핀다. 원자료가 비공개라면 파일명을 바꾸거나 해시를 더한 것만으로 공개 가능해지지 않는다. |
 | Git | 새 후보 폴더에서 시작한 독립 이력을 쓴다. 원본 저장소의 커밋, 태그, 브랜치, 원격 설정과 메타데이터를 복사하지 않는다. |
@@ -21,8 +21,8 @@
 
 ```sh
 python3 -B qa/check_release.py --root .
-python3 -B qa/check_release.py --root . --zip ../ITR-1.0-rc1.zip
-python3 -B qa/check_release.py --root . --zip ../ITR-1.0-rc1.zip --git
+python3 -B qa/check_release.py --root . --zip ../ITR-<버전>.zip
+python3 -B qa/check_release.py --root . --zip ../ITR-<버전>.zip --git
 ```
 
 검사기는 등록한 상대경로, UTF-8 본문, 알려진 자격 증명·개인 연락처 패턴, URL의 호스트, PDF 추출 텍스트·문서 정보·XMP·첨부 및 활성 스크립트를 확인한다. ZIP 또는 Git 게이트는 RC의 전체 구성과 최상위 MANIFEST.sha256을 먼저 확인한다. ZIP 파일 목록과 압축 해제한 각 멤버의 SHA-256을 점검한 폴더와 대조한다. ZIP에 별도 주석이나 부가 필드가 있으면 중단한다. Git 검사는 로컬 HEAD의 추적 파일 및 바이트, 참조가 닿는 커밋의 작성자·커미터·메시지·파일 경로·내용을 확인한다. 소스 전용 검사에서 Git 커밋 수 0 또는 ZIP skipped가 나오면 해당 게이트는 아직 수행하지 않은 상태다.
@@ -41,8 +41,8 @@ git config --local user.useConfigOnly true
 git add -- .
 git diff --cached --stat
 git diff --cached --check
-git commit -m "Prepare ITR 1.0 RC1"
-python3 -B qa/check_release.py --root . --zip ../ITR-1.0-rc1.zip --git
+git commit -m "Prepare ITR <버전>"
+python3 -B qa/check_release.py --root . --zip ../ITR-<버전>.zip --git
 git rev-parse HEAD
 ```
 

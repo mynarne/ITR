@@ -1,5 +1,5 @@
 {
-  "adapter_version": "1.0",
+  "adapter_version": "1.1",
   "input": {
     "mode": "delta",
     "product": "합성 재고 분류기",
@@ -47,7 +47,21 @@
         ],
         "role": "runner",
         "selected": true,
-        "depends_on": []
+        "depends_on": [],
+        "standards": [
+          {
+            "ref": "ISO/IEC 25010:2023",
+            "items": [
+              "functional_suitability.functional_correctness"
+            ]
+          },
+          {
+            "ref": "ISO/IEC/IEEE 29119-4:2021",
+            "items": [
+              "specification_based.equivalence_partitioning"
+            ]
+          }
+        ]
       },
       {
         "id": "stock-low",
@@ -65,7 +79,21 @@
         ],
         "role": "runner",
         "selected": true,
-        "depends_on": []
+        "depends_on": [],
+        "standards": [
+          {
+            "ref": "ISO/IEC 25010:2023",
+            "items": [
+              "functional_suitability.functional_correctness"
+            ]
+          },
+          {
+            "ref": "ISO/IEC/IEEE 29119-4:2021",
+            "items": [
+              "specification_based.boundary_value_analysis"
+            ]
+          }
+        ]
       }
     ]
   },

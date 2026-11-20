@@ -4,6 +4,8 @@ from hashlib import sha256
 from pathlib import Path
 import json
 import shutil
+import subprocess
+import sys
 import tempfile
 
 import pymupdf
@@ -118,6 +120,24 @@ def main():
         assert token in report and "한영혼용−경계" in report and "기록된근거없음" in report
         assert "기록된실행능력없음" in report
 
+        # A plan 1.1 attempt shows standards coverage and uncovered quality items in the reader PDF.
+        cli = [sys.executable, "-B", str(ROOT / "tools" / "project.py")]
+        target = ["--workspace", str(ROOT / "examples" / "project"), "--plan", str(ROOT / "examples" / "project" / "plan.json")]
+        approval = json.loads(subprocess.run(cli + ["inspect", *target], capture_output=True, check=True).stdout)
+        store = root / "standards-store"
+        subprocess.run(cli + ["run", *target, "--approve", approval["approval_sha256"], "--store", str(store),
+                              "--round", "1", "--require-pass"], capture_output=True, check=True)
+        standards_pages, mapped = inspect(store / "round-0001" / "attempt-0001" / "record.json",
+                                          root / "standards.pdf", ("최종 기술 판정", "통과"), ["2", "0", "0", "0", "0"])
+        assert "표준대응" in mapped and "검사없는항목39개" in mapped and "적용표준" in mapped
+        altered = root / "standards-altered"
+        shutil.copytree(store / "round-0001" / "attempt-0001", altered)
+        catalog = altered / "standards.json"
+        catalog.write_bytes(catalog.read_bytes().replace(b"functional_correctness", b"functional_correctnesz", 1))
+        _, unverified = inspect(altered / "record.json", root / "standards-altered.pdf", ("최종 기술 판정",),
+                                ["2", "0", "0", "0", "0"])
+        assert "표준목록확인필요" in unverified and "검사없는항목" not in unverified
+
         old = failed.read_bytes()
         try:
             convert_reader(pymupdf, FAILED, failed)
@@ -132,7 +152,8 @@ def main():
             pass
         else:
             raise AssertionError("reader profile must keep outputs outside source attempts")
-        print(f"reader profiles: failed {fail_pages}, passed {pass_pages}, blocked {block_pages}, long {long_pages}")
+        print(f"reader profiles: failed {fail_pages}, passed {pass_pages}, blocked {block_pages}, long {long_pages}, "
+              f"standards {standards_pages}")
 
 
 if __name__ == "__main__":

@@ -15,6 +15,7 @@ from itr import Journal
 from itr_store import digest, encoded, fresh, gate, load, names, need, now, predecessor, safe_file
 from project_plan import EVIDENCE_SCHEMA_VERSIONS, inspect, stable, validate
 from project_process import run_command
+from project_standards import CATALOG_PATH, read_catalog
 from project_verify import verify_project
 
 
@@ -117,6 +118,9 @@ def run(args, stop):
         fresh(directory / "plan.json", raw)
         fresh(directory / "input.json", encoded(inputs))
         fresh(directory / "approval.json", encoded(binding))
+        catalog = CATALOG_PATH.read_bytes()
+        need(digest(catalog) == binding["standards_catalog_sha256"], "inspect 이후 표준 목록이 바뀌었습니다.")
+        fresh(directory / "standards.json", catalog)
         for name, data in payloads.items():
             output = directory / "sources" / name
             output.parent.mkdir(parents=True, exist_ok=True)
@@ -213,7 +217,19 @@ def main():
     runner.add_argument("--require-pass", action="store_true")
     verifier = sub.add_parser("verify")
     verifier.add_argument("record", type=Path)
+    lister = sub.add_parser("standards", help="계획 1.1에 쓸 표준 판본과 항목 목록")
+    lister.add_argument("--ref", help="이 판본의 항목만 출력")
     args = parser.parse_args()
+    if args.command == "standards":
+        catalog = read_catalog(CATALOG_PATH.read_bytes())
+        need(args.ref is None or args.ref in catalog, "표준 목록에 없는 판본입니다.")
+        for ref, entry in catalog.items():
+            if args.ref in (None, ref):
+                kind = f'항목 {len(entry["items"])}개' if entry["items"] else "부 단위"
+                print(f'{ref} · {entry["purpose"]} · {kind} · 근거 {entry["basis"]}')
+                if args.ref:
+                    print("\n".join("  " + item for item in entry["items"]))
+        return 0
     if args.command == "inspect":
         plan, _, inputs, binding, _, _ = inspect(args.workspace, args.plan)
         print(encoded({**binding, "product": inputs["product"], "revision": inputs["revision"],

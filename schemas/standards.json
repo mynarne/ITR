@@ -1,0 +1,245 @@
+{
+  "catalog_version": "1.0",
+  "checked_at": "2026-11-20",
+  "note": "표준 번호·판본과 항목 이름만 담는다. ISO 원문 정의는 싣지 않는다. basis는 항목 이름을 확인한 근거 수준이다: preview_toc는 공식 미리보기 목차, public_summary는 공개 요약, part_level은 항목 없이 부 단위로만 붙인다. 이 목록은 평가 추적용이며 표준 준수나 인증을 뜻하지 않는다. coverage가 true인 표준은 평가 대상이라 검사 없는 항목을 보고서에 표시하고, false인 표준은 설계·리뷰 방법이라 사용한 항목만 표시한다.",
+  "standards": [
+    {
+      "ref": "ISO/IEC 25010:2023",
+      "purpose": "제품 품질 모델",
+      "basis": "public_summary",
+      "items": [
+        "functional_suitability.functional_completeness",
+        "functional_suitability.functional_correctness",
+        "functional_suitability.functional_appropriateness",
+        "performance_efficiency.time_behaviour",
+        "performance_efficiency.resource_utilization",
+        "performance_efficiency.capacity",
+        "compatibility.co_existence",
+        "compatibility.interoperability",
+        "interaction_capability.appropriateness_recognizability",
+        "interaction_capability.learnability",
+        "interaction_capability.operability",
+        "interaction_capability.user_error_protection",
+        "interaction_capability.user_engagement",
+        "interaction_capability.inclusivity",
+        "interaction_capability.user_assistance",
+        "interaction_capability.self_descriptiveness",
+        "reliability.faultlessness",
+        "reliability.availability",
+        "reliability.fault_tolerance",
+        "reliability.recoverability",
+        "security.confidentiality",
+        "security.integrity",
+        "security.non_repudiation",
+        "security.accountability",
+        "security.authenticity",
+        "security.resistance",
+        "maintainability.modularity",
+        "maintainability.reusability",
+        "maintainability.analysability",
+        "maintainability.modifiability",
+        "maintainability.testability",
+        "flexibility.adaptability",
+        "flexibility.scalability",
+        "flexibility.installability",
+        "flexibility.replaceability",
+        "safety.operational_constraint",
+        "safety.risk_identification",
+        "safety.fail_safe",
+        "safety.hazard_warning",
+        "safety.safe_integration"
+      ],
+      "coverage": true
+    },
+    {
+      "ref": "ISO/IEC 25019:2023",
+      "purpose": "사용 품질 모델",
+      "basis": "public_summary",
+      "items": [
+        "beneficialness.usability",
+        "beneficialness.accessibility",
+        "beneficialness.suitability",
+        "freedom_from_risk.economic_risk",
+        "freedom_from_risk.environmental_and_societal_risk",
+        "freedom_from_risk.health_risk",
+        "freedom_from_risk.human_life_risk",
+        "acceptability.experience",
+        "acceptability.trustworthiness",
+        "acceptability.compliance"
+      ],
+      "coverage": true
+    },
+    {
+      "ref": "ISO/IEC 25012:2008",
+      "purpose": "데이터 품질 모델",
+      "basis": "public_summary",
+      "items": [
+        "inherent.accuracy",
+        "inherent.completeness",
+        "inherent.consistency",
+        "inherent.credibility",
+        "inherent.currentness",
+        "inherent_and_system.accessibility",
+        "inherent_and_system.compliance",
+        "inherent_and_system.confidentiality",
+        "inherent_and_system.efficiency",
+        "inherent_and_system.precision",
+        "inherent_and_system.traceability",
+        "inherent_and_system.understandability",
+        "system.availability",
+        "system.portability",
+        "system.recoverability"
+      ],
+      "coverage": true
+    },
+    {
+      "ref": "ISO/IEC 25022:2016",
+      "purpose": "사용 품질 측정",
+      "basis": "part_level",
+      "items": []
+    },
+    {
+      "ref": "ISO/IEC 25023:2016",
+      "purpose": "제품 품질 측정",
+      "basis": "part_level",
+      "items": []
+    },
+    {
+      "ref": "ISO/IEC 25040:2024",
+      "purpose": "품질 평가 프로세스",
+      "basis": "part_level",
+      "items": []
+    },
+    {
+      "ref": "ISO/IEC 25066:2016",
+      "purpose": "사용성 평가 보고서 형식",
+      "basis": "part_level",
+      "items": []
+    },
+    {
+      "ref": "ISO 9241-11:2018",
+      "purpose": "사용성 정의와 사용 맥락",
+      "basis": "preview_toc",
+      "items": [
+        "usability.effectiveness",
+        "usability.efficiency",
+        "usability.satisfaction",
+        "context_of_use.users",
+        "context_of_use.goals",
+        "context_of_use.tasks",
+        "context_of_use.resources",
+        "context_of_use.environment"
+      ],
+      "coverage": true
+    },
+    {
+      "ref": "ISO 9241-110:2020",
+      "purpose": "상호작용 원칙",
+      "basis": "public_summary",
+      "items": [
+        "principle.suitability_for_the_users_tasks",
+        "principle.self_descriptiveness",
+        "principle.conformity_with_user_expectations",
+        "principle.learnability",
+        "principle.controllability",
+        "principle.use_error_robustness",
+        "principle.user_engagement"
+      ],
+      "coverage": true
+    },
+    {
+      "ref": "ISO 9241-112:2025",
+      "purpose": "정보 표시 원칙",
+      "basis": "part_level",
+      "items": []
+    },
+    {
+      "ref": "ISO 9241-125:2017",
+      "purpose": "시각적 정보 표시",
+      "basis": "part_level",
+      "items": []
+    },
+    {
+      "ref": "ISO 9241-171:2025",
+      "purpose": "소프트웨어 접근성",
+      "basis": "part_level",
+      "items": []
+    },
+    {
+      "ref": "ISO 9241-210:2019",
+      "purpose": "인간 중심 설계",
+      "basis": "preview_toc",
+      "items": [
+        "hcd.understanding_and_specifying_the_context_of_use",
+        "hcd.specifying_the_user_requirements",
+        "hcd.producing_design_solutions",
+        "hcd.conducting_user_centred_evaluation"
+      ],
+      "coverage": true
+    },
+    {
+      "ref": "ISO/IEC/IEEE 29119-1:2022",
+      "purpose": "테스트 개념",
+      "basis": "part_level",
+      "items": []
+    },
+    {
+      "ref": "ISO/IEC/IEEE 29119-2:2021",
+      "purpose": "테스트 프로세스",
+      "basis": "part_level",
+      "items": []
+    },
+    {
+      "ref": "ISO/IEC/IEEE 29119-3:2021",
+      "purpose": "테스트 문서",
+      "basis": "part_level",
+      "items": []
+    },
+    {
+      "ref": "ISO/IEC/IEEE 29119-4:2021",
+      "purpose": "테스트 설계 기법",
+      "basis": "preview_toc",
+      "items": [
+        "specification_based.equivalence_partitioning",
+        "specification_based.classification_tree_method",
+        "specification_based.boundary_value_analysis",
+        "specification_based.syntax_testing",
+        "specification_based.combinatorial_test_design",
+        "specification_based.decision_table_testing",
+        "specification_based.cause_effect_graphing",
+        "specification_based.state_transition_testing",
+        "specification_based.scenario_testing",
+        "specification_based.random_testing",
+        "specification_based.metamorphic_testing",
+        "specification_based.requirements_based_testing",
+        "structure_based.statement_testing",
+        "structure_based.branch_testing",
+        "structure_based.decision_testing",
+        "structure_based.branch_condition_testing",
+        "structure_based.branch_condition_combination_testing",
+        "structure_based.mcdc_testing",
+        "structure_based.data_flow_testing",
+        "experience_based.error_guessing"
+      ],
+      "coverage": false
+    },
+    {
+      "ref": "ISO/IEC 20246:2017",
+      "purpose": "산출물 리뷰",
+      "basis": "preview_toc",
+      "items": [
+        "review_type.formal_review",
+        "review_type.informal_review",
+        "review_type.inspection",
+        "review_type.walkthrough",
+        "review_type.author_check",
+        "review_type.buddy_check",
+        "technique.ad_hoc_reviewing",
+        "technique.checklist_based_reviewing",
+        "technique.scenario_based_reviewing",
+        "technique.role_based_reviewing"
+      ],
+      "coverage": false
+    }
+  ]
+}

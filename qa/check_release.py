@@ -32,7 +32,7 @@ MASCOTS = {
 }
 LICENSE_HASHES = {
     "LICENSE": "14665d018b6fb7372531679f3eb48c96ac6dcb460306520855c24d24c882f1c5",
-    "THIRD_PARTY_NOTICES.md": "b20caef470e741be5dcb63daec7f02ba6828a936cd9e1f8b8714d185d7bbe412",
+    "THIRD_PARTY_NOTICES.md": "00dff2fe198564d3476894f1879422881785566a9f797439d8d694eb3de306c4",
     "LICENSES/Apache-2.0.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
     "LICENSES/Droid-NOTICE.txt": "38751245389e1e23f73e6f5384b5cbe7fa972cc4410c5adc9c04b082a0b9561a",
     "LICENSES/URW-OFL-1.1.txt": "3b709798a0943cbf824ed21b6b2c735e482cf6cb8fa11441e57381c2650253ca",
@@ -65,16 +65,16 @@ CORE = {*HISTORY_RC2, *HISTORY_RC1, *LICENSE_HASHES, *FONT_HASHES, *MASCOTS,
 FILES = set("""
 .gitattributes .gitignore VERSION README.md README.ko.md README.en.md SKILL.md VERIFICATION.ko.md MANIFEST.sha256
 docs/architecture.ko.md docs/assessment.ko.md docs/gates.ko.md docs/release.ko.md
-docs/verification-rc2.ko.md docs/verification-rc2-followup.ko.md docs/pdf-report.ko.md docs/pdf-editorial.ko.md
+docs/verification-rc2.ko.md docs/verification-rc2-followup.ko.md docs/verification-rc3.ko.md docs/pdf-report.ko.md docs/pdf-editorial.ko.md
 docs/history-0.1/VERIFICATION.ko.md docs/history-0.1/MANIFEST.sha256
 examples/preview/replay.html examples/preview/print.html examples/preview/report.md examples/preview/report.pdf
 qa/check_views.py qa/check_replay.cjs qa/check_browser.py qa/check_release.py qa/package-checks.json qa/print_pdf.py qa/reader_pdf.py qa/check_reader_pdf.py
-schemas/README.md schemas/record.schema.json schemas/project-plan.schema.json schemas/project-evidence.schema.json schemas/validate.py
+schemas/README.md schemas/record.schema.json schemas/project-plan.schema.json schemas/standards.json schemas/project-evidence.schema.json schemas/validate.py
 tools/check_itr.py tools/itr.py tools/itr_store.py tools/itr_fixture.py tools/sample_receipt.py tools/progress.py
 views/render.py views/replay.template.html views/progress.html
 """.split()) | MASCOTS.keys() | LICENSE_HASHES.keys() | FONT_HASHES.keys() | HISTORY_RC1.keys() | HISTORY_RC2.keys()
 NEW_FILES = set("""
-tools/project.py tools/project_plan.py tools/project_process.py tools/project_verify.py
+tools/project.py tools/project_plan.py tools/project_process.py tools/project_verify.py tools/project_standards.py
 qa/check_project.py qa/check_progress.py qa/browser-check.rc1.json qa/project-check.rc1.json qa/pdf-pagination.rc1.json
 qa/check_progress_dom.cjs qa/dom_test_double.cjs qa/progress-dom.rc1.json qa/progress-watcher.rc1.json
 examples/project/checks.py examples/project/inventory.py examples/project/plan-defect.json examples/project/plan.json examples/itr-selfcheck.json
@@ -89,8 +89,8 @@ REVIEWED = {
     **{name: spec[0] for name, spec in MASCOTS.items()},
     "examples/project/checks.py": "c1dec4f971b7a63194294344da2d8d28884a3e60683a36ca9640165da9f73a8a",
     "examples/project/inventory.py": "d70dd95ea16a575a71a198ae5ceac507710d7776846104172b3c401d0c2ce0e1",
-    "examples/project/plan.json": "89fcc130dbe6a142c9f3d52f13ec71a78cfb74b28c9302c97ef919f516a08c24",
-    "examples/project/plan-defect.json": "ec3f7b6e48a30ec6a1d8da61f4520329bdc85348863bf9c00e0cfa77367b37e1",
+    "examples/project/plan.json": "bc49ccf51306c2ca1e6a58697d7f522a39e0bfcfd622d397ff4f3097f443c5ea",
+    "examples/project/plan-defect.json": "5a641041793ea5d56d24d32ef4956766f934db6209c292f69e632b9a9cb7697c",
 }
 PROJECT_RECORDS = {
     "round-0001/attempt-0001": {

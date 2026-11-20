@@ -143,6 +143,7 @@ function inspect(){
   const criteria=(ids)=>ids.map(id=>{const b=inp.baselines.find(v=>v.id===id);return b?kinds[b.kind]+" "+b.id+" · "+b.version+"　"+b.text:id});
   section(box,st==="failed"?"깨진 목표·기준":"검사 기준",criteria(goalIds.length?goalIds:c.criteria));
   section(box,"통과 조건",[c.pass_condition]);
+  if(c.standards?.length)section(box,"적용 표준",c.standards.map(t=>t.ref+(t.items.length?" · "+t.items.join(", "):"")));
   if(c.requires.length)section(box,"필요 능력",c.requires.map(k=>{const cap=inp.capabilities.find(v=>v.id===k);return k+" · "+(cap?.available?"가용":"미지원")}));
   const evidence=Array.from(new Set([...(result?.evidence_ids||[]),...defects.flatMap(d=>d.evidence_ids)]));
   if(evidence.length){

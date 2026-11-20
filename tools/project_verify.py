@@ -6,6 +6,7 @@ from itr_store import digest, gate, keyed, names, need, predecessor, safe_file
 from project_plan import (EVIDENCE_SCHEMA_VERSIONS, EXECUTION_POLICY, executable_path_hash,
                           plan_checks, read_json, stable, validate)
 from project_process import LIMIT, launch_flags
+from project_standards import check_standards, read_catalog
 
 
 EVIDENCE_SCHEMA = Path(__file__).resolve().parents[1] / "schemas" / "project-evidence.schema.json"
@@ -51,6 +52,7 @@ def verify_launch(observation, command, binding, version):
     need(observation["evidence_schema_version"] == version, "증거별 실행 증거 버전 불일치")
     if version != "2.0":
         return verify_hashed_launch(observation, command, binding)
+    need("launch_executable_sha256" not in observation, "증거 2.0에 2.1 전용 실행 경로 지문이 있습니다.")
     actual = observation["launch_argv"]
     if actual is None:
         return  # The versioned schema only allows this before a blocked launch.
@@ -88,6 +90,13 @@ def verify_project(path):
     need(binding["plan_sha256"] == digest(safe_file(folder, "plan.json").read_bytes()), "고정 계획 바이트 불일치")
     need(set(plan["files"]) == {s["path"] for s in binding["files"]}, "입력 파일 목록 불일치")
     need(record["extensions"]["standards"] == plan["standards"], "표준 선택 근거 불일치")
+    if plan["adapter_version"] == "1.1":
+        catalog = safe_file(folder, "standards.json").read_bytes()
+        need(digest(catalog) == binding.get("standards_catalog_sha256"), "표준 목록 해시 불일치")
+        check_standards(plan["standards"], keyed(frozen["checks"], "id"), read_catalog(catalog))
+    else:
+        need(plan["adapter_version"] == "1.0" and "standards_catalog_sha256" not in binding
+             and not any("standards" in c for c in frozen["checks"]), "계획 버전과 표준 대응 기록 불일치")
     need(frozen == {**plan["input"], "capabilities": binding["capabilities"]}, "계획·실행 능력 고정 불일치")
     for item in binding["files"]:
         need(digest(safe_file(folder, "sources/" + item["path"]).read_bytes()) == item["sha256"], "고정 파일 해시 불일치")

@@ -10,6 +10,8 @@ python3 -B qa/check_reader_pdf.py
 pdffonts ITR-QA-report-pretendard.pdf
 ```
 
+`pdffonts`는 Poppler의 선택 도구다. 없으면 `check_reader_pdf.py`가 내장 글꼴이 동봉 Pretendard 파일과 같은지 대신 확인한다.
+
 출력은 원본 시도 폴더 밖의 새 경로로 지정한다. 원본 `record.json`, 완료 해시, 증거, 기존 PDF는 그대로 보존한다.
 
 ## 서체 출처와 권리

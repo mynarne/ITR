@@ -80,6 +80,11 @@ def absolute_launch_path(observation):
     observation["launch_argv"][0] = str(Path(sys.executable).resolve())
 
 
+def as_evidence_20_with_hash(observation):
+    as_evidence_20(observation)
+    observation["launch_executable_sha256"] = "0" * 64
+
+
 def as_evidence_20(observation):
     # Published evidence 2.0 stored the resolved executable path and had no separate path hash.
     observation.pop("launch_executable_sha256")
@@ -456,6 +461,8 @@ def evidence_versions(root, workspace):
     published = rewrite_copy(good, root / "evidence-2.0", as_evidence_20, version="2.0")
     require("증거 2.0" in cli(["verify", published]).stdout, "evidence 2.0 records keep their original rules")
     render_check(published, root / "evidence-2.0-report", "증거 2.0 · 프로세스 호출 인수 기록")
+    mixed = rewrite_copy(good, root / "evidence-2.0-with-2.1-field", as_evidence_20_with_hash, version="2.0")
+    require("2.1 전용" in cli(["verify", mixed], expected=2).stderr, "evidence 2.0 must not carry the 2.1 path hash")
     partial = root / "missing-launch-field"
     shutil.copytree(good.parent.parent.parent, partial)
     record_path = partial / FIRST
@@ -491,6 +498,130 @@ def evidence_versions(root, workspace):
     print("PASS 11 · 레거시·증거 2.0·2.1 재검증·재보고, 2.1 절대 경로와 필수 키 누락 거부, 호출 전 차단 보존")
 
 
+
+def standards_mapping(root, workspace):
+    """Plan 1.1: each check names the standards that fit its purpose; uncovered catalog items stay visible."""
+    plan = json_file(workspace / "plan.json")
+    ux = {"ref": "ISO/IEC 25010:2023", "items": ["interaction_capability.operability"]}
+
+    def legacy(p):
+        p["adapter_version"] = "1.0"
+
+    def untagged(p):
+        del p["input"]["checks"][0]["standards"]
+
+    def no_technique(p):
+        p["input"]["checks"][0]["standards"] = p["input"]["checks"][0]["standards"][:1]
+
+    def no_model(p):
+        p["input"]["checks"][0]["standards"] = p["input"]["checks"][0]["standards"][1:]
+
+    def unknown_item(p):
+        p["input"]["checks"][0]["standards"][0]["items"] = ["functional_suitability.speed"]
+
+    def not_applied(p):
+        p["input"]["checks"][0]["standards"].append({"ref": "ISO/IEC 25019:2023", "items": ["beneficialness.suitability"]})
+
+    def unused(p):
+        p["standards"].append({"edition": "ISO/IEC 25012:2008", "applied": True, "reason": "데이터 품질 검사 예정"})
+
+    def part_items(p):
+        p["standards"].append({"edition": "ISO 9241-171:2025", "applied": True, "reason": "접근성"})
+        p["input"]["checks"][0]["standards"].append({"ref": "ISO 9241-171:2025", "items": ["principle.keyboard"]})
+
+    def ux_without_9241(p):
+        p["input"]["checks"][0]["standards"][0] = ux
+
+    def acceptance_without_context(p):
+        p["input"]["checks"][0]["stage"] = "acceptance"
+
+    def invented_9241(p):
+        p["standards"].append({"edition": "ISO 9241-999:1900", "applied": True, "reason": "없는 부"})
+        p["input"]["checks"][0]["standards"][0] = ux
+        p["input"]["checks"][0]["standards"].append({"ref": "ISO 9241-999:1900", "items": []})
+
+    def applied_only_on_deferred(p):
+        for s in p["standards"]:
+            if s["edition"] == "ISO/IEC 20246:2017":
+                s.update(applied=True, reason="인스펙션 예정")
+        deferred = dict(p["input"]["checks"][0], id="deferred-review", title="보류 인스펙션", method="inspection",
+                        selected=False, standards=[p["input"]["checks"][0]["standards"][0],
+                                                   {"ref": "ISO/IEC 20246:2017", "items": ["review_type.inspection"]}])
+        p["input"]["checks"].append(deferred)
+
+    def item_with_newline(p):
+        p["standards"].append({"edition": "EXT-SAFETY-1", "applied": True, "reason": "분야 표준"})
+        p["input"]["checks"][0]["standards"].append({"ref": "EXT-SAFETY-1", "items": ["hazard\n"]})
+
+    cases = [(legacy, "1.1"), (untagged, "적용 표준"), (no_technique, "29119-4"), (no_model, "품질 모델"),
+             (unknown_item, "항목 오류"), (not_applied, "적용하지 않은 표준"), (unused, "연결된 검사가 없습니다"),
+             (part_items, "부 단위"), (ux_without_9241, "ISO 9241"), (acceptance_without_context, "인수·사용 맥락"),
+             (invented_9241, "ISO 9241"), (applied_only_on_deferred, "연결된 검사가 없습니다"),
+             (item_with_newline, "항목 이름 형식")]
+    for change, message in cases:
+        trial = copy.deepcopy(plan)
+        change(trial)
+        trial_path = workspace / f"qa-standards-{change.__name__}.json"
+        save(trial_path, trial)
+        result = cli(["inspect", "--workspace", workspace, "--plan", trial_path], expected=2)
+        require(message in result.stderr, f"standards rule {change.__name__} must reject before approval")
+
+    listing = cli(["standards"]).stdout
+    items = cli(["standards", "--ref", "ISO 9241-110:2020"]).stdout
+    require("ISO/IEC 25010:2023" in listing and "부 단위" in listing and "principle.controllability" in items
+            and "ISO/IEC 25012:2008" not in items, "standards listing must show refs and the requested items")
+    cli(["standards", "--ref", "ISO 9218"], expected=2)
+    cli(["standards", "--ref", ""], expected=2)
+    # A deferred acceptance check may name an edition this attempt does not apply.
+    deferred = copy.deepcopy(plan)
+    later = dict(deferred["input"]["checks"][0], id="later-acceptance", title="보류 인수", stage="acceptance", selected=False)
+    later["standards"] = [{"ref": "ISO/IEC 25019:2023", "items": ["beneficialness.suitability"]}, *later["standards"]]
+    deferred["input"]["checks"].append(later)
+    deferred_path = workspace / "qa-standards-deferred.json"
+    save(deferred_path, deferred)
+    inspect(workspace, deferred_path)
+    # A UX check with ISO 9241 and an acceptance check with quality in use pass inspect, run and verify.
+    good = copy.deepcopy(plan)
+    good["standards"] += [
+        {"edition": "ISO 9241-110:2020", "applied": True, "reason": "조작 흐름을 상호작용 원칙으로 판정한다."},
+        {"edition": "ISO 9241-11:2018", "applied": True, "reason": "담당자의 과업 효과성을 확인한다."}]
+    for s in good["standards"]:
+        if s["edition"] == "ISO/IEC 25019:2023":
+            s.update(applied=True, reason="담당자가 재고 상태를 알아볼 수 있는지 인수 시나리오로 확인한다.")
+    first, second = good["input"]["checks"]
+    first["standards"] = [ux, {"ref": "ISO 9241-110:2020", "items": ["principle.controllability"]},
+                          {"ref": "ISO/IEC/IEEE 29119-4:2021", "items": ["specification_based.scenario_testing"]}]
+    second.update(stage="acceptance")
+    second["standards"] = [{"ref": "ISO/IEC 25019:2023", "items": ["beneficialness.suitability"]},
+                           {"ref": "ISO 9241-11:2018", "items": ["usability.effectiveness"]},
+                           *second["standards"]]
+    good_path = workspace / "qa-standards-good.json"
+    save(good_path, good)
+    store = root / "standards-store"
+    cli(run_args(workspace, good_path, store, inspect(workspace, good_path), "--require-pass"))
+    record_path = store / FIRST
+    record = verified(record_path)
+    require(record["input"]["checks"][0]["standards"] == first["standards"], "standards are frozen with the input")
+    render_check(record_path, root / "standards-report", "적용 표준")
+    report = (root / "standards-report" / "report.md").read_text(encoding="utf-8")
+    require("표준 대응" in report and "검사 없는 항목" in report and "performance\\_efficiency.time\\_behaviour" in report
+            and "ISO 9241-110:2020" in report, "report must show coverage and uncovered catalog items")
+
+    # The attempt keeps its own catalog copy; a changed copy fails verification.
+    tampered = root / "standards-tampered"
+    shutil.copytree(store, tampered)
+    catalog = tampered / "round-0001" / "attempt-0001" / "standards.json"
+    catalog.write_bytes(catalog.read_bytes().replace(b"functional_correctness", b"functional_correctnesz", 1))
+    require("표준 목록 해시 불일치" in cli(["verify", tampered / FIRST], expected=2).stderr,
+            "verify must reject a changed standards catalog")
+    subprocess.run([sys.executable, "-B", str(PACKAGE / "views" / "render.py"), str(tampered / FIRST),
+                    "--out", str(root / "standards-tampered-report")], capture_output=True, check=True, timeout=30)
+    shown = (root / "standards-tampered-report" / "report.md").read_text(encoding="utf-8")
+    require("표준 목록 확인 필요" in shown and "검사 없는 항목" not in shown,
+            "reports must not trust a catalog copy that does not match the approval")
+    print("PASS 12 · 용도별 표준 대응 규칙 13건 거부, 보류 검사 허용, UX·인수 검사의 9241·25019 대응, "
+          "검사 없는 항목 보고, 표준 목록 변조의 검증·보고서 거부")
+
 def main():
     with tempfile.TemporaryDirectory(prefix="itr-project-qa-") as folder:
         root = Path(folder)
@@ -503,6 +634,7 @@ def main():
         absent_positive_observation(root, workspace)
         output_and_environment(root, workspace)
         evidence_versions(root, workspace)
+        standards_mapping(root, workspace)
 
 
 if __name__ == "__main__":

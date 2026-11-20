@@ -10,7 +10,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / "schemas"), str(ROOT / "views")]
-from render import APPROVAL, FINAL, KINDS, METHODS, MODES, STAGES, STATES, local_time, previews, unique_ids
+from render import (APPROVAL, FINAL, KINDS, METHODS, MODES, STAGES, STATES, local_time, previews,
+                    load_catalog, standards_blocks, unique_ids)
 from validate import read_json, validate
 
 INK = (0.13, 0.12, 0.11)
@@ -246,7 +247,26 @@ def summary(sheet, record):
             sheet.line(value_x, top + 84, f"검사 결과에 나머지 {len(pending) - 2}건이 있습니다.", 9, DIM)
 
 
-def detail(sheet, record, digest, media):
+def standards(sheet, record, results, catalog):
+    # Reuse the renderer's coverage so every view reports the same counts and uncovered items.
+    for kind, value in standards_blocks(record, results, catalog):
+        if kind == "h2":
+            sheet.section(value)
+        elif kind == "h3":
+            sheet.item(value)
+        elif kind == "table":
+            head, rows = value
+            for row in rows:
+                cells = "  ·  ".join(v if h in ("용도", "적용") else f"{h} {v}" for h, v in zip(head[1:], row[1:]))
+                if head[0] == "항목":
+                    sheet.text(f"{row[0]}  ·  {cells}", 9.5, gap=2)
+                else:
+                    sheet.field(row[0], cells)
+        else:
+            sheet.text(value, 9.5)
+
+
+def detail(sheet, record, digest, media, catalog=None):
     inp = record["input"]
     checks = inp["checks"]
     results = {item["check_id"]: item for item in record["results"]}
@@ -261,7 +281,11 @@ def detail(sheet, record, digest, media):
         sheet.field("통과 조건", check["pass_condition"])
         sheet.text(outcome["detail"], 10)
         sheet.field("기준 / 근거", f'{unique_ids(check["criteria"])}  /  {unique_ids(outcome["evidence_ids"])}')
+        if "standards" in check:
+            sheet.field("적용 표준", "  /  ".join(t["ref"] + (" · " + ", ".join(t["items"]) if t["items"] else "")
+                                                for t in check["standards"]))
         sheet.y += 5
+    standards(sheet, record, results, catalog)
 
     if record["defects"]:
         sheet.section("결함과 다음 조치")
@@ -350,5 +374,5 @@ def convert_reader(pymupdf, source, output):
         raise ValueError("Reader PDF requires a sealed record with a matching SHA-256.")
     sheet = Sheet(pymupdf)
     summary(sheet, record)
-    detail(sheet, record, digest, previews(record, source.parent))
+    detail(sheet, record, digest, previews(record, source.parent), load_catalog(record, source.parent))
     return sheet.finish(output)

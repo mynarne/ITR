@@ -23,6 +23,12 @@ All three programs carry the embedded CFF notice `(URW)++,Copyright 2014 by (URW
 
 Copyright (c) 2005-2008, The Android Open Source Project. The font is distributed under the **Apache License, Version 2.0**. The embedded font’s name table carries family and style. Its numeric version comes from the TrueType `head` table. The complete upstream NOTICE and the Apache Software Foundation’s license text accompany this report. [Bundled Droid NOTICE](LICENSES/Droid-NOTICE.txt) · [Bundled Apache License 2.0](LICENSES/Apache-2.0.txt) · [Matching font resource](https://github.com/ArtifexSoftware/mupdf/blob/1.26.11/resources/fonts/droid/DroidSansFallback.ttf) · [Upstream Droid NOTICE](https://raw.githubusercontent.com/ArtifexSoftware/mupdf/1.26.11/resources/fonts/droid/NOTICE) · [Apache Software Foundation license text](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
+## Bundled fonts / 동봉 글꼴
+
+`assets/fonts/Pretendard-Regular.ttf` and `assets/fonts/Pretendard-SemiBold.ttf` (Pretendard v1.3.9) are distributed under the [SIL Open Font License 1.1](LICENSES/Pretendard-OFL-1.1.txt). Reader-profile PDFs embed these fonts.
+
+동봉한 Pretendard v1.3.9 글꼴 두 개에는 [SIL Open Font License 1.1](LICENSES/Pretendard-OFL-1.1.txt)이 적용된다. 리더용 PDF가 이 글꼴을 내장한다.
+
 ## Optional tools / 선택 도구
 
 PyMuPDF, MuPDF, Poppler, Playwright, Chromium and Node.js are separate tools that may be installed for rendering or verification. Their executable programs and libraries are distributed by their respective projects. The font inventory above applies to this specific PDF. A report generated with a different renderer or font configuration can embed different fonts.

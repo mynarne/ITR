@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 from itr_store import digest, encoded, keyed, need, safe_file
+from project_standards import CATALOG_PATH, check_standards, read_catalog
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "schemas"))
 from validate import read_json, validate
 
@@ -100,12 +101,12 @@ def inspect(workspace, plan_path):
         return obj
     data = json.loads(raw.decode("utf-8"), object_pairs_hook=pairs)
     need(isinstance(data, dict) and set(data) == {"adapter_version", "input", "files", "commands", "standards"}
-         and data["adapter_version"] == "1.0", "프로젝트 어댑터 계획 1.0 형식 오류")
+         and data["adapter_version"] == "1.1",
+         "프로젝트 어댑터 계획 1.1 형식 오류 · 검사마다 목적에 맞는 standards 대응이 필요합니다. "
+         "1.0 계획은 README의 '1.0 계획 옮기기'(Moving a 1.0 plan)와 project.py standards로 옮깁니다.")
     checks = plan_checks(data["input"])
-    need(isinstance(data["standards"], list) and all(isinstance(s, dict) and
-         set(s) == {"edition", "applied", "reason"} and isinstance(s["applied"], bool)
-         and all(isinstance(s[k], str) and s[k].strip() for k in ["edition", "reason"])
-         for s in data["standards"]), "표준 선택은 edition, applied, reason을 사용합니다.")
+    catalog_raw = CATALOG_PATH.read_bytes()
+    check_standards(data["standards"], checks, read_catalog(catalog_raw))
     paths = data["files"]
     need(isinstance(paths, list) and paths and all(isinstance(p, str) for p in paths)
          and len(paths) == len(set(paths)), "명시적으로 고정할 고유 파일 목록이 필요합니다.")
@@ -165,6 +166,7 @@ def inspect(workspace, plan_path):
     binding = dict(plan_sha256=digest(raw), files=specs, executables=programs,
                    workspace_sha256=digest(os.fsencode(str(workspace))), capabilities=capabilities,
                    execution_policy=EXECUTION_POLICY, evidence_schema_version=EVIDENCE_SCHEMA_VERSION,
+                   standards_catalog_sha256=digest(catalog_raw),
                    launch_os=os.name, executable_paths_sha256={
                        name: executable_path_hash(path) if path is not None else None
                        for name, path in actual_paths.items()})

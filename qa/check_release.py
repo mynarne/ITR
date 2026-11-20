@@ -10,15 +10,29 @@ import subprocess
 import sys
 import tempfile
 import zipfile
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 IDENTITY = ("ITR Release", "itr@invalid.example")
 LEGACY = "docs/history-0.1/MANIFEST.sha256"
 LEGACY_SHA256 = "32f4668fd18b403d82080878c049eeec27b9d0e2670c11181a74791cadff4733"
 MAX_SIZE = 32 * 1024 * 1024
-CORE = {"SKILL.md", "README.md", "README.en.md", "VERSION", LEGACY, "qa/check_release.py"}
+MASCOT = "assets/itr-mascot-aligned.svg"
+THINKING_DESCRIPTION = ("A hand-drawn stick figure rests a hand on its chin and eyes the letters AI, "
+                        "holding a blue magnifying glass low.")
+MASCOTS = {
+    "assets/itr-mascot.svg": ("faa3bdd02b30ccf6769a208ca96d4e924980a08c32d35d95ad4cd0faf2d4fd53",
+        "0 0 420 300", "ITR: Is This Real?", "A skeptical stick figure inspects a green check mark through a magnifying glass."),
+    "assets/itr-mascot-doodle.svg": ("7a18b11571c0d14b7e9b606629d5a0069d7bd9692d2e7a714436ac7b06aa60f3",
+        "0 0 500 320", "ITR: real?", "A hand-drawn stick figure holds up a blue magnifying glass and questions the letters AI in a box."),
+    "assets/itr-mascot-thinking.svg": ("90b6bb54eb07b60d6b8ca884a03760e8f394ca675234c831868231d6cc3f7c5b",
+        "0 0 500 320", "ITR: real?", THINKING_DESCRIPTION),
+    MASCOT: ("a285982726212f9cf46b5c493cd42dc190bb161c9b677f80d44ed33927606157",
+        "0 0 500 320", "ITR: real?", THINKING_DESCRIPTION),
+}
+CORE = {*MASCOTS, "SKILL.md", "README.md", "README.ko.md", "README.en.md", "VERSION", LEGACY, "qa/check_release.py"}
 FILES = set("""
-.gitignore VERSION README.md README.en.md SKILL.md VERIFICATION.ko.md MANIFEST.sha256
+.gitignore VERSION README.md README.ko.md README.en.md SKILL.md VERIFICATION.ko.md MANIFEST.sha256
 docs/architecture.ko.md docs/assessment.ko.md docs/gates.ko.md docs/release.ko.md
 docs/history-0.1/VERIFICATION.ko.md docs/history-0.1/MANIFEST.sha256
 examples/preview/replay.html examples/preview/print.html examples/preview/report.md examples/preview/report.pdf
@@ -26,7 +40,7 @@ qa/check_views.py qa/check_replay.cjs qa/check_browser.py qa/check_release.py qa
 schemas/README.md schemas/record.schema.json schemas/project-plan.schema.json schemas/validate.py
 tools/check_itr.py tools/itr.py tools/itr_store.py tools/itr_fixture.py tools/sample_receipt.py tools/progress.py
 views/render.py views/replay.template.html views/progress.html
-""".split())
+""".split()) | MASCOTS.keys()
 NEW_FILES = set("""
 tools/project.py tools/project_plan.py tools/project_process.py tools/project_verify.py
 qa/check_project.py qa/check_progress.py qa/browser-check.rc1.json qa/project-check.rc1.json qa/pdf-pagination.rc1.json
@@ -35,6 +49,7 @@ examples/project/checks.py examples/project/inventory.py examples/project/plan-d
 """.split())
 REVIEWED = {
     LEGACY: LEGACY_SHA256,
+    **{name: spec[0] for name, spec in MASCOTS.items()},
     "examples/project/checks.py": "c1dec4f971b7a63194294344da2d8d28884a3e60683a36ca9640165da9f73a8a",
     "examples/project/inventory.py": "d70dd95ea16a575a71a198ae5ceac507710d7776846104172b3c401d0c2ce0e1",
     "examples/project/plan.json": "89fcc130dbe6a142c9f3d52f13ec71a78cfb74b28c9302c97ef919f516a08c24",
@@ -106,6 +121,31 @@ def require(test, label):
         raise AuditError(label)
 
 
+def check_mascot(name, content):
+    _, view_box, title, description = MASCOTS[name]
+    markup = re.sub(rb"<!--.*?-->", b"", content, flags=re.DOTALL)
+    require(b"<!" not in markup and b"<?" not in markup, "unexpected SVG declaration")
+    ns = "{http://www.w3.org/2000/svg}"
+    try:
+        root = ET.fromstring(content)
+    except ET.ParseError:
+        raise AuditError("invalid mascot SVG") from None
+    require(root.tag == ns + "svg" and root.attrib == {"viewBox": view_box, "role": "img",
+            "aria-labelledby": "title desc"}, "mascot SVG root or accessibility metadata")
+    for tag, expected in [("title", title), ("desc", description)]:
+        matches = root.findall(ns + tag)
+        require(len(matches) == 1 and matches[0].attrib == {"id": tag} and matches[0].text == expected,
+                "mascot accessible title or description")
+    tags = {ns + t for t in ("svg", "title", "desc", "rect", "path", "ellipse", "g", "circle")}
+    attrs = set("viewBox role aria-labelledby id x y width height rx ry cx cy r d transform "
+                "fill stroke stroke-width stroke-linecap stroke-linejoin stroke-dasharray".split())
+    for node in root.iter():
+        require(node.tag in tags and node.attrib.keys() <= attrs, "unreviewed SVG element or attribute")
+        for paint in ("fill", "stroke"):
+            if paint in node.attrib:
+                require(re.fullmatch(r"none|#[0-9a-fA-F]{3,8}", node.attrib[paint]), "nonlocal SVG paint")
+
+
 def hash_bytes(data):
     return hashlib.sha256(data).hexdigest()
 
@@ -171,6 +211,8 @@ class Audit:
             require(checksum == REVIEWED[name], "reviewed sample or manifest changed · " + where)
         if name in self.original:
             require(checksum == self.original[name], "pinned synthetic sample changed · " + where)
+        if name in MASCOTS:
+            check_mascot(name, content)
         key = (name.rsplit(".", 1)[-1], checksum)
         if key in self.scanned:
             return checksum
@@ -221,6 +263,12 @@ class Audit:
                 self.hashes[rel] = self.data(rel, p.read_bytes())
         require(CORE <= set(self.hashes), "mandatory release source missing")
         require(set(self.original) <= set(self.hashes), "pinned synthetic sample missing")
+        image = re.compile(r"^!\[[^\]\n]+\]\(" + re.escape(MASCOT) + r"\)$", re.MULTILINE)
+        for name in ("README.md", "README.ko.md"):
+            document = (self.root / name).read_text(encoding="utf-8")
+            intro = document.split("\n## ", 1)[0]
+            require(len(image.findall(intro)) == 1 and sum(document.count(asset) for asset in MASCOTS) == 1,
+                    "missing or duplicate mascot image in introduction · " + name)
 
     def complete(self):
         require(FILES | NEW_FILES <= self.hashes.keys(), "release component missing")

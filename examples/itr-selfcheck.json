@@ -1,0 +1,126 @@
+{
+  "adapter_version": "1.0",
+  "input": {
+    "mode": "delta",
+    "product": "ITR 실행 기록 검증기",
+    "revision": "ITR-1.0-rc1",
+    "baselines": [
+      {
+        "id": "G-RESUME",
+        "kind": "goal",
+        "version": "1",
+        "text": "재실행 후에도 이전 증거와 판정에 근거해 회귀 여부를 확인할 수 있다."
+      },
+      {
+        "id": "R-SCHEMA",
+        "kind": "requirement",
+        "version": "1",
+        "text": "기록 소비자가 규격 1.0의 유효한 고정 입력을 오프라인에서 검증할 수 있다."
+      },
+      {
+        "id": "S-RECORD",
+        "kind": "rule",
+        "version": "1",
+        "text": "중단·동시 쓰기·변조 사례를 검증하고 재시도에서 기존 시도를 보존한다."
+      }
+    ],
+    "capabilities": [
+      {
+        "id": "local_command",
+        "available": true
+      }
+    ],
+    "checks": [
+      {
+        "id": "schema-input",
+        "title": "ITR 실제 입력 계약",
+        "stage": "integration",
+        "method": "execution",
+        "role": "runner",
+        "requires": [
+          "local_command"
+        ],
+        "criteria": [
+          "R-SCHEMA"
+        ],
+        "pass_condition": "번들 검증기가 보존된 1차 입력에 대해 유효 판정과 종료 0을 기록한다.",
+        "selected": true,
+        "depends_on": []
+      },
+      {
+        "id": "itr-regression",
+        "title": "ITR 실행기 자체 회귀",
+        "stage": "system",
+        "method": "execution",
+        "role": "runner",
+        "requires": [
+          "local_command"
+        ],
+        "criteria": [
+          "G-RESUME",
+          "S-RECORD"
+        ],
+        "pass_condition": "실제 배포 도구의 충돌·중단·증거 변조·재실행 회귀 체크가 모두 끝나고 종료 0을 기록한다.",
+        "depends_on": [
+          "schema-input"
+        ],
+        "selected": true
+      }
+    ]
+  },
+  "files": [
+    "schemas/record.schema.json",
+    "schemas/validate.py",
+    "examples/runs/round-0001/attempt-0001/input.json",
+    "tools/itr.py",
+    "tools/check_itr.py",
+    "tools/itr_fixture.py",
+    "tools/itr_store.py",
+    "tools/sample_receipt.py"
+  ],
+  "commands": {
+    "schema-input": {
+      "argv": [
+        "{python}",
+        "-B",
+        "schemas/validate.py",
+        "--part",
+        "input",
+        "examples/runs/round-0001/attempt-0001/input.json"
+      ],
+      "timeout_s": 12,
+      "pass_marker": "형식 유효"
+    },
+    "itr-regression": {
+      "argv": [
+        "{python}",
+        "-B",
+        "tools/check_itr.py"
+      ],
+      "timeout_s": 60,
+      "pass_marker": "ITR 로컬 합성 회귀 검사 완료."
+    }
+  },
+  "standards": [
+    {
+      "edition": "ISO/IEC 25010:2023",
+      "applied": true,
+      "reason": "계약 형식 처리와 실행 기록의 보존이라는 제품 동작을 점검한다."
+    },
+    {
+      "edition": "ISO/IEC 25019:2023",
+      "applied": false,
+      "reason": "외부 검토자가 자신의 현업 환경에서 과업을 마치는 사용 맥락 평가는 별도이다."
+    },
+    {
+      "edition": "ISO/IEC/IEEE 29119-1/2/3/4",
+      "applied": true,
+      "reason": "검사 수준·진행·문서와 중단·경계 사례를 명시한다."
+    },
+    {
+      "edition": "ISO/IEC 20246:2017",
+      "applied": false,
+      "reason": "이번 변경분 계획의 두 항목은 공개된 테스트 진입점 실행이다."
+    }
+  ]
+}

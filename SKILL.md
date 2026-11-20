@@ -30,6 +30,6 @@ description: ITR (Is This Real?) — 제품 목표와 선택된 스킬 규칙·�
 
 ## 바로 열기
 
-- [한국어 실행 안내](README.md) · [English entry](README.en.md)
+- [한국어 실행 안내](README.ko.md) · [English entry](README.md)
 - [공통 기록 스키마](schemas/record.schema.json) · [평가·릴리스 게이트](docs/gates.ko.md)
 - [RC 실행 결과와 검증 범위](VERIFICATION.ko.md) · [진행 화면 데모](examples/preview/replay.html)

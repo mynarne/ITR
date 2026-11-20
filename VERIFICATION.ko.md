@@ -1,6 +1,6 @@
 # ITR 1.0.0-rc.1 · 검증 기록
 
-이 후보는 명시적으로 승인된 프로젝트 테스트, 실제 저널을 읽는 진행 지도, 봉인된 보고서를 함께 제공한다. 첫 실행은 [한국어 README](README.md) 또는 [English README](README.en.md)에서 시작한다. 동봉된 두 재고 예제의 정규 기록은 [일반 실행기 예제](examples/project-runs/)에 있다.
+이 후보는 명시적으로 승인된 프로젝트 테스트, 실제 저널을 읽는 진행 지도, 봉인된 보고서를 함께 제공한다. 첫 실행은 [한국어 README](README.ko.md) 또는 [English README](README.md)에서 시작한다. 동봉된 두 재고 예제의 정규 기록은 [일반 실행기 예제](examples/project-runs/)에 있다.
 
 ## 실제 결과 · 2026-11-20 KST
 

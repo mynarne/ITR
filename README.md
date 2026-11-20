@@ -61,7 +61,7 @@ On Windows, use `{python}` with `-m pytest` or a trusted absolute `.exe` (for ex
 ## Automated runner and reviewer responsibilities
 
 - The runner aggregates command outcomes by role. The bundled demonstration illustrates the six roles. For independent review, assign separate reviewers or isolated sessions with only their allowed inputs. Preserve first verdicts before sharing them with an integrator.
-- Record confirmed causes, hypotheses and acceptance as separate reviewer or human records linked to the sealed record's SHA-256. The CLI creates neither annotations nor stakeholder approvals. The ANDA adapter and its Notion and Discord delivery are designs.
+- Record confirmed causes, hypotheses and acceptance as separate reviewer or human records linked to the sealed record's SHA-256. The CLI creates neither annotations nor stakeholder approvals.
 - The local capability probe covers `local_command` and the current supported OS label. A browser, simulator, or device requires a separate adapter. `verify` checks internal consistency and never reruns commands. For independent evidence, use an authorized operator and anchor the sealed digest separately under their control.
 
 ## Compatibility and reproduction
@@ -71,7 +71,7 @@ On Windows, use `{python}` with `-m pytest` or a trusted absolute `.exe` (for ex
 | Linux x86_64, Python 3.12 | Executed local project checks, ITR's own tests, integrity verification, interruptions and concurrent writers. See the RC verification report for results. |
 | Browser | Replay and live-map behavior tested using a DOM test double. The actual Chromium launch was blocked by the host's socket policy before navigation; pixel layout, mobile rendering and animation frames remain unverified. |
 | Other operating systems and AI clients | The JSON contract, capability selection and adapter design are portable. Linux simulations cover Windows sharing failures and CP949 output. The native Windows reader-lock test runs only on Windows. macOS, devices and independent third-party AI sessions were outside this cloud run. |
-| Reporting and integrations | Markdown, self-contained replay, print HTML and an actual PDF were checked. Only optional PDF generation/QA needs PyMuPDF. The optional ANDA adapter design calls for separate authorization after first verdicts are sealed. |
+| Reporting | Markdown, self-contained replay, print HTML and an actual PDF were checked. Only optional PDF generation/QA needs PyMuPDF. |
 
 ```sh
 python3 -B qa/check_project.py
